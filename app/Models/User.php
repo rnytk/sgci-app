@@ -22,7 +22,29 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'agency_id',
+        'job_position_id',
+        'is_active',
     ];
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+       // Solo permitimos el acceso si la cuenta está activa. esta funcioin se ve en produccion
+        return $this->is_active;
+    }
+
+    // Relación con la Agencia
+    public function agency(): BelongsTo
+    {
+        return $this->belongsTo(Agency::class);
+    }
+
+    // Relación con el Puesto de Trabajo
+    public function jobPosition(): BelongsTo
+    {
+        return $this->belongsTo(JobPosition::class);
+    }
+
 
     /**
      * The attributes that should be hidden for serialization.
