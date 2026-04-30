@@ -12,8 +12,12 @@ class JobPositionForm
         return $schema
             ->components([
                 TextInput::make('name')
+                    ->label('Nombre del puesto')
+                    ->required()
+                    ->unique(),
+                TextInput::make('description')
+                    ->label('Descripción')
                     ->required(),
-                TextInput::make('description'),
             ]);
     }
 }

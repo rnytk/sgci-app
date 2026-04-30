@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\JobPositions\Tables;
+namespace App\Filament\Resources\Trainings\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -8,18 +8,21 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-class JobPositionsTable
+class TrainingsTable
 {
     public static function configure(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('name')
-                    ->label('Nombre del puesto')
+                TextColumn::make('title')
                     ->searchable(),
                 TextColumn::make('description')
-                    ->label('Descripción')
                     ->searchable(),
+                TextColumn::make('slug')
+                    ->searchable(),
+                TextColumn::make('user_id')
+                    ->numeric()
+                    ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
