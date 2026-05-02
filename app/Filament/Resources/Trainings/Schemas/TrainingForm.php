@@ -9,8 +9,9 @@ use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-
+use Filament\Forms\Components\FileUpload;
 use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
 
@@ -53,23 +54,44 @@ class TrainingForm
                             ->relationship('mediaResources') // Relación HasMany
                             ->schema([
                                 TextInput::make('name')
-                                    ->label('Nombre del Recurso')
-                                    ->placeholder('Ej. Manual PDF')
-                                    ->required(),
-                                
-                                Select::make('type')
-                                    ->label('Tipo')
-                                    ->options([
-                                        'pdf' => 'Documento PDF',
-                                        'video' => 'Video / Stream',
-                                        'link' => 'Enlace Externo',
-                                    ])
-                                    ->required(),
+                            ->label('Nombre del Recurso')
+                            ->required(),
 
-                                TextInput::make('url_path')
-                                    ->label('Ruta o URL')
+                        Select::make('type')
+                            ->label('Tipo de Contenido')
+                            ->options([
+                                'pdf' => 'Documento PDF (Cargar)',
+                                'video' => 'Video (YouTube/Vimeo)',
+                            ])
+                            ->required()
+                            ->live(), // Habilita la reactividad inmediata para los demás campos
+
+                        // CAMPO A: Se muestra solo si es PDF
+                       // CAMPO 1: Para archivos físicos (Usa el nombre real de la DB)
+                                FileUpload::make('url_path')
+                                    ->label('Adjuntar PDF')
+                                    ->directory('trainings')
+                                    ->visible(fn (Get $get) => $get('type') === 'pdf')
+                                    ->required(fn (Get $get) => $get('type') === 'pdf'),
+
+                                // CAMPO 2: Para enlaces (Nombre diferente para evitar colisión)
+                                TextInput::make('external_url')
+                                    ->label('URL del Video/Enlace')
                                     ->placeholder('https://...')
-                                    ->required(),
+                                    ->visible(fn (Get $get) => $get('type') === 'video')
+                                    ->required(fn (Get $get) => $get('type') === 'video')
+                                    // Esta es la magia: cuando cargue el registro, si es video, pon el valor de url_path aquí
+                                    ->afterStateHydrated(function (TextInput $component, $state, $record) {
+                                        if ($record && $record->type === 'video') {
+                                            $component->state($record->url_path);
+                                        }
+                                    })
+                                    // Cuando el usuario escriba, guarda el valor en el campo real url_path
+                                    ->afterStateUpdated(function ($state, Set $set) {
+                                        $set('url_path', $state);
+                                    }),
+
+
                             ])
                             ->columns(3)
                             ->defaultItems(0)

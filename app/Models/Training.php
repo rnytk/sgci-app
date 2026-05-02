@@ -12,7 +12,7 @@ class Training extends Model
         'slug',
         'user_id',
     ];
-    public function creator() 
+    public function user() 
     { 
         return $this->belongsTo(User::class, 'user_id'); 
     }

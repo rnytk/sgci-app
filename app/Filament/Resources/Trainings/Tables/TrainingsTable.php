@@ -20,8 +20,8 @@ class TrainingsTable
                     ->searchable(),
                 TextColumn::make('slug')
                     ->searchable(),
-                TextColumn::make('user_id')
-                    ->numeric()
+                TextColumn::make('user.name')
+                    ->label('Creador')
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
