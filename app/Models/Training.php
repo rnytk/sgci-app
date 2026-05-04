@@ -21,4 +21,9 @@ class Training extends Model
     {
         return $this->hasMany(MediaResource::class);
     }
+
+    public function exams()
+    {
+        return $this->hasOne(Exam::class);
+    }
 }
