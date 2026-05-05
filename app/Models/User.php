@@ -40,7 +40,7 @@ class User extends Authenticatable
         return $this->belongsTo(Agency::class);
     }
 
-    // Relación con el Puesto de Trabajo
+   
     public function jobPosition(): BelongsTo
     {
         return $this->belongsTo(JobPosition::class);
