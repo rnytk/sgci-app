@@ -7,6 +7,7 @@ use App\Filament\Resources\TrainingSessions\Pages\EditTrainingSession;
 use App\Filament\Resources\TrainingSessions\Pages\ListTrainingSessions;
 use App\Filament\Resources\TrainingSessions\Schemas\TrainingSessionForm;
 use App\Filament\Resources\TrainingSessions\Tables\TrainingSessionsTable;
+use App\Filament\Resources\TrainingSessions\RelationManagers\EnrollmentsRelationManager;
 use App\Models\TrainingSession;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -33,7 +34,7 @@ class TrainingSessionResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            EnrollmentsRelationManager::class,
         ];
     }
 
