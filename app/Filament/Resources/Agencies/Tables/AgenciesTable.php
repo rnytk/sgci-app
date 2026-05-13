@@ -22,7 +22,9 @@ class AgenciesTable
                     ->label('Ubicación'),
                 TextColumn::make('is_active')
                     ->searchable()
-                    ->label('Estado'),
+                      ->badge()
+                    ->label('Estado')
+                    ->color('success'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

@@ -19,7 +19,11 @@ class TrainingSessionResource extends Resource
 {
     protected static ?string $model = TrainingSession::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static ?string $modelLabel = 'Programación';
+    protected static ?string $pluralModelLabel = 'Programaciónes';
+    protected static ?string $navigationLabel = 'Programaciónes';
+
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPresentationChartBar;
 
     public static function form(Schema $schema): Schema
     {

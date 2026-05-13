@@ -18,7 +18,11 @@ class TrainingResource extends Resource
 {
     protected static ?string $model = Training::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+     protected static ?string $modelLabel = 'Capacitación';
+      protected static ?string $pluralModelLabel = 'Capacitaciónes';
+    protected static ?string $navigationLabel = 'Capacitaciónes';
+
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAcademicCap;
 
     public static function form(Schema $schema): Schema
     {

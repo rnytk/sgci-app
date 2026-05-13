@@ -18,7 +18,12 @@ class ExamResource extends Resource
 {
     protected static ?string $model = Exam::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static ?string $modelLabel = 'Evaluacion';
+    protected static ?string $pluralModelLabel = 'Evaluaciones';
+    protected static ?string $navigationLabel = 'Evaluaciones';
+
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentCheck;
 
     public static function form(Schema $schema): Schema
     {
