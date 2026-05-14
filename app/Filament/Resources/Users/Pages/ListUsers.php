@@ -2,9 +2,12 @@
 
 namespace App\Filament\Resources\Users\Pages;
 
+use App\Filament\Imports\UserImporter;
 use App\Filament\Resources\Users\UserResource;
 use Filament\Actions\CreateAction;
+use Filament\Actions\ImportAction;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Support\Icons\Heroicon;
 
 class ListUsers extends ListRecords
 {
@@ -14,6 +17,11 @@ class ListUsers extends ListRecords
     {
         return [
             CreateAction::make(),
+            ImportAction::make()
+                ->importer(UserImporter::class)
+                ->label('Importar')
+                ->icon(Heroicon::OutlinedArrowUpOnSquare)
+                
         ];
     }
 }
