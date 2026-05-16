@@ -20,9 +20,9 @@ class UserForm
                     ->label('Email address')
                     ->email()
                     ->required(),
-                TextInput::make('password')
+                /*TextInput::make('password')
                     ->password()
-                    ->required(),
+                    ->required(),*/
                 Select::make('agency_id')
                     ->relationship('agency', 'name')
                     ->label('Agencia')

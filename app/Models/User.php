@@ -19,6 +19,8 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
+    public $password_para_correo;
+    
     protected $fillable = [
         'name',
         'email',

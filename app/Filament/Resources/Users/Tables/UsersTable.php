@@ -16,26 +16,32 @@ class UsersTable
         return $table
             ->columns([
                 TextColumn::make('name')
+                ->label('Nombre')
                     ->searchable(),
                 TextColumn::make('email')
+                    ->label('Correo electrónico')
                     ->label('Email address')
                     ->searchable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('agency.name')
                     ->label('Agencia')
                     ->sortable(),
                TextColumn::make('jobPosition.name')
+                    ->label('Puesto')
                     ->numeric()
                     ->sortable(),
                 IconColumn::make('is_active')
+                    ->label('Activo')
                     ->boolean(),
+                    TextColumn::make('created_at')
+                    ->label('Fecha de creación')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('updated_at')
+                    ->label('Fecha de actualización')   
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //

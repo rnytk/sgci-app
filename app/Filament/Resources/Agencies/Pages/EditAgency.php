@@ -3,11 +3,15 @@
 namespace App\Filament\Resources\Agencies\Pages;
 
 use App\Filament\Resources\Agencies\AgencyResource;
+use App\Filament\Traits\RedirectToIndex;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditAgency extends EditRecord
 {
+
+    use RedirectToIndex;
+    
     protected static string $resource = AgencyResource::class;
 
     protected function getHeaderActions(): array

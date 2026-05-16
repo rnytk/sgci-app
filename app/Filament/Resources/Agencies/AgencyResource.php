@@ -13,12 +13,16 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class AgencyResource extends Resource
 {
     protected static ?string $model = Agency::class;
 
-       protected static ?string $modelLabel = 'Agencia';
+    protected static ?string $modelLabel = 'Agencia';
+
+
+    protected static string | UnitEnum | null $navigationGroup = 'Configuracion';
 
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingOffice2;

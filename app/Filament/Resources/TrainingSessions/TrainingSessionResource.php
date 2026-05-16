@@ -14,6 +14,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class TrainingSessionResource extends Resource
 {
@@ -22,6 +23,9 @@ class TrainingSessionResource extends Resource
     protected static ?string $modelLabel = 'Programación';
     protected static ?string $pluralModelLabel = 'Programaciónes';
     protected static ?string $navigationLabel = 'Programaciónes';
+
+
+    protected static string | UnitEnum | null $navigationGroup = 'Capacitaciones';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPresentationChartBar;
 

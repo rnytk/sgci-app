@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+    use UnitEnum;
 
 class TrainingResource extends Resource
 {
@@ -21,6 +22,10 @@ class TrainingResource extends Resource
      protected static ?string $modelLabel = 'Capacitación';
       protected static ?string $pluralModelLabel = 'Capacitaciónes';
     protected static ?string $navigationLabel = 'Capacitaciónes';
+    
+
+
+    protected static string | UnitEnum | null $navigationGroup = 'Capacitaciones';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAcademicCap;
 

@@ -13,12 +13,16 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class JobPositionResource extends Resource
 {
     protected static ?string $model = JobPosition::class;
 
      protected static ?string $modelLabel = 'Cargo';
+
+    protected static string | UnitEnum | null $navigationGroup = 'Configuracion';
+    
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBriefcase;
 

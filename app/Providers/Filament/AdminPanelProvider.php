@@ -24,15 +24,27 @@ class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
+        
           ->databaseNotifications()
           ->databaseNotificationsPolling('30s')
+          ->brandName('SISTEMA SGCI KATO-KI')
+          ->brandLogo(asset('img/logo_sgci.png'))
+          ->brandLogoHeight('5rem')
+           ->sidebarFullyCollapsibleOnDesktop()
+          
             ->default()
             ->id('admin')
             ->path('admin')
             ->login()
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Blue,
             ])
+
+            ->navigationGroups([
+                'Capacitaciones',
+                'Configuracion',
+            ])
+
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([

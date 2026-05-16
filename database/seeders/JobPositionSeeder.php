@@ -19,18 +19,28 @@ class JobPositionSeeder extends Seeder
         ]);
 
         JobPosition::create([
-            'name' => 'Gerente de Operaciones',
-            'description' => 'Gerente de Operaciones.',
+            'name' => 'Gerente Administrativo y Financiero',
+            'description' => 'Gerente Administrativo y Financiero .',
         ]);
 
         JobPosition::create([
-            'name' => 'Gerente de Administración y Finanzas',
-            'description' => 'Gerente de Administración y Finanzas.',
+            'name' => 'Director de Operaciones y Desarrollo de Agencias ',
+            'description' => 'Director de Operaciones y Desarrollo de Agencias ',
         ]);
 
         JobPosition::create([
-            'name' => 'Gerente de Recursos Humanos',
-            'description' => 'Gerente de Recursos Humanos.',
+            'name' => 'Gerente de Agencias y Sucursales ',
+            'description' => 'Gerente de Agencias y Sucursales ',
+        ]);
+
+        JobPosition::create([
+            'name' => 'Director de Sistemas y Soporte Tecnológico ',
+            'description' => 'Director de Sistemas y Soporte Tecnológico ',
+        ]);
+
+        JobPosition::create([
+            'name' => 'Directora de Desarrollo Cooperativo y Comunitario ',
+            'description' => 'Directora de Desarrollo Cooperativo y Comunitario ',
         ]);
     }
 }
