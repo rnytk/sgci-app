@@ -14,6 +14,8 @@ class JobPositionsTable
     {
         return $table
             ->columns([
+                TextColumn::make('id')
+                    ->label('#'),
                 TextColumn::make('name')
                     ->label('Nombre del puesto')
                     ->searchable(),

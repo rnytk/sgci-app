@@ -14,6 +14,8 @@ class AgenciesTable
     {
         return $table
             ->columns([
+                TextColumn::make('id')
+                    ->label('#'),
                 TextColumn::make('name')
                     ->searchable()
                     ->label('Nombre'),
