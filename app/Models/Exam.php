@@ -12,12 +12,26 @@ class Exam extends Model
         'time_limit',
     ];
 
-    public function training() 
-    { 
-        return $this->belongsTo(Training::class); 
+    protected function casts(): array
+    {
+        return [
+            'passing_score' => 'integer',
+            'time_limit' => 'integer',
+        ];
     }
-    public function questions() 
-    { 
-        return $this->hasMany(Question::class); 
+
+    public function training()
+    {
+        return $this->belongsTo(Training::class);
+    }
+
+    public function questions()
+    {
+        return $this->hasMany(Question::class);
+    }
+
+    public function attempts()
+    {
+        return $this->hasMany(ExamAttempt::class);
     }
 }

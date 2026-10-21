@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\TrainingSessions\Tables;
 
+use App\Enums\TrainingModality;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -22,9 +23,21 @@ class TrainingSessionsTable
                     ->sortable(),
 
                 TextColumn::make('scheduled_at')
-                    ->label('Fecha/Hora')
+                    ->label('Inicio')
                     ->dateTime('d/m/Y H:i')
                     ->sortable(),
+
+                TextColumn::make('ends_at')
+                    ->label('Fin')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable(),
+
+                TextColumn::make('modality')
+                    ->label('Modalidad')
+                    ->badge()
+                    ->formatStateUsing(fn (mixed $state): string => $state instanceof TrainingModality
+                        ? $state->label()
+                        : (TrainingModality::tryFrom((string) $state)?->label() ?? (string) $state)),
 
                 IconColumn::make('require_exam')
                     ->label('Examen')

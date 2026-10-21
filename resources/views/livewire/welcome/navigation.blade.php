@@ -1,15 +1,15 @@
-<nav class="-mx-3 flex flex-1 justify-end">
+<nav class="flex items-center justify-end gap-3">
     @auth
         <a
             href="{{ url('/dashboard') }}"
-            class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
+            class="rounded-xl bg-[#102d52] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#193f6f]"
         >
             Dashboard
         </a>
     @else
         <a
             href="{{ route('login') }}"
-            class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
+            class="rounded-xl bg-[#102d52] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#193f6f]"
         >
             Log in
         </a>
@@ -17,7 +17,7 @@
         @if (Route::has('register'))
             <a
                 href="{{ route('register') }}"
-                class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
+                class="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-bold text-[#102d52] transition hover:bg-[#f2f9e9]"
             >
                 Register
             </a>

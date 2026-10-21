@@ -11,4 +11,11 @@ class CreateTrainingSession extends CreateRecord
     use RedirectToIndex;
 
     protected static string $resource = TrainingSessionResource::class;
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $data['trainer_id'] = auth()->id();
+
+        return $data;
+    }
 }

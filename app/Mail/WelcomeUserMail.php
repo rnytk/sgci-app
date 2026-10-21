@@ -12,7 +12,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Mail\Mailables\Address;
 use App\Models\User;
 
-class WelcomeUserMail extends Mailable
+class WelcomeUserMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -22,7 +22,7 @@ class WelcomeUserMail extends Mailable
     public function __construct(
 
         public User $user,
-        public string $temporaryPassword
+        public string $resetUrl
     )
     {
         //

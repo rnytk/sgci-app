@@ -8,54 +8,33 @@ new #[Layout('layouts.guest')] class extends Component
 {
     public string $email = '';
 
-    /**
-     * Send a password reset link to the provided email address.
-     */
     public function sendPasswordResetLink(): void
     {
-        $this->validate([
-            'email' => ['required', 'string', 'email'],
-        ]);
-
-        // We will send the password reset link to this user. Once we have attempted
-        // to send the link, we will examine the response then see the message we
-        // need to show to the user. Finally, we'll send out a proper response.
-        $status = Password::sendResetLink(
-            $this->only('email')
-        );
+        $this->validate(['email' => ['required', 'string', 'email']]);
+        $status = Password::sendResetLink($this->only('email'));
 
         if ($status != Password::RESET_LINK_SENT) {
             $this->addError('email', __($status));
-
             return;
         }
 
         $this->reset('email');
-
         session()->flash('status', __($status));
     }
 }; ?>
 
-<div>
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-        {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
+<section class="mx-auto max-w-xl overflow-hidden rounded-[30px] border border-slate-100 bg-white shadow-[0_24px_70px_rgba(15,23,42,0.1)]">
+    <div class="bg-gradient-to-r from-[#124b3a] to-[#78ae28] px-7 py-8 text-white sm:px-10">
+        <a href="{{ url('/') }}" wire:navigate class="flex w-fit items-center gap-3"><span class="flex h-12 w-10 items-center justify-center overflow-hidden rounded-xl bg-white/95"><img src="{{ asset('img/logo_sgci.png') }}" alt="SGCI" class="h-14 w-11 object-contain"></span><span class="text-xl font-extrabold">SGCI</span></a>
+        <p class="mt-8 text-xs font-bold uppercase tracking-[0.16em] text-white/75">Recuperación de acceso</p>
+        <h1 class="mt-2 text-3xl font-extrabold">Restablece tu contraseña</h1>
     </div>
-
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
-
-    <form wire:submit="sendPasswordResetLink">
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input wire:model="email" id="email" class="block mt-1 w-full" type="email" name="email" required autofocus />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Email Password Reset Link') }}
-            </x-primary-button>
-        </div>
-    </form>
-</div>
+    <div class="px-7 py-8 sm:px-10 sm:py-10">
+        <p class="text-sm leading-6 text-slate-500">Indica tu correo institucional y te enviaremos un enlace para crear una nueva contraseña.</p>
+        <x-auth-session-status class="mt-5" :status="session('status')" />
+        <form wire:submit="sendPasswordResetLink" class="mt-7 space-y-5">
+            <div><x-input-label for="email" value="Correo institucional" /><x-text-input wire:model="email" id="email" class="mt-2 block w-full bg-slate-50 px-4 py-3" type="email" name="email" required autofocus placeholder="nombre@institucion.gob" /><x-input-error :messages="$errors->get('email')" class="mt-2" /></div>
+            <div class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between"><a href="{{ route('login') }}" wire:navigate class="text-sm font-bold text-[#5c9d33] hover:text-[#477b2d]">← Volver al inicio de sesión</a><x-primary-button>Enviar enlace</x-primary-button></div>
+        </form>
+    </div>
+</section>

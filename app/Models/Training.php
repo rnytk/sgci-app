@@ -12,9 +12,10 @@ class Training extends Model
         'slug',
         'user_id',
     ];
-    public function user() 
-    { 
-        return $this->belongsTo(User::class, 'user_id'); 
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function mediaResources()
@@ -26,5 +27,9 @@ class Training extends Model
     {
         return $this->hasOne(Exam::class);
     }
-    
+
+    public function exam()
+    {
+        return $this->hasOne(Exam::class);
+    }
 }

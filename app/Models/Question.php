@@ -12,13 +12,19 @@ class Question extends Model
         'type',
         'points',
     ];
-    public function exam() 
-    { 
-        return $this->belongsTo(Exam::class); 
+
+    public function exam()
+    {
+        return $this->belongsTo(Exam::class);
     }
 
-    public function questionOptions() 
-    { 
-        return $this->hasMany(QuestionOption::class); 
+    public function questionOptions()
+    {
+        return $this->hasMany(QuestionOption::class);
+    }
+
+    public function attemptAnswers()
+    {
+        return $this->hasMany(ExamAttemptAnswer::class);
     }
 }

@@ -8,10 +8,14 @@ use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
 use Illuminate\Support\Number;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use App\Services\UserInvitationService;
 
 class UserImporter extends Importer
 {
     protected static ?string $model = User::class;
+
+    protected bool $shouldInvite = false;
 
     public static function getColumns(): array
     {
@@ -46,14 +50,21 @@ class UserImporter extends Importer
     public function resolveRecord(): User
     {
         $user = User::firstOrNew([
-        'email' => $this->data['email'],
-    ]);
+            'email' => $this->data['email'],
+        ]);
 
-    if (! $user->exists) {
-        $user->password = Hash::make('capacitacion123');
+        $this->shouldInvite = ! $user->exists;
+
+        if ($this->shouldInvite) {
+            $user->password = Hash::make(Str::password(32));
+        }
+
+        return $user;
     }
 
-    return $user;
+    public function afterCreate(): void
+    {
+        app(UserInvitationService::class)->send($this->getRecord());
     }
 
     public static function getCompletedNotificationBody(Import $import): string

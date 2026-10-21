@@ -2,25 +2,29 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Notifications\Notifiable;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
+use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, HasRoles, Notifiable;
+
+    protected $attributes = [
+        'is_active' => true,
+    ];
 
     /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
      */
-    public $password_para_correo;
-    
     protected $fillable = [
         'name',
         'email',
@@ -32,8 +36,14 @@ class User extends Authenticatable
 
     public function canAccessPanel(Panel $panel): bool
     {
-       // Solo permitimos el acceso si la cuenta está activa. esta funcioin se ve en produccion
-        return $this->is_active;
+        return $panel->getId() === 'admin'
+            && $this->is_active
+            && $this->hasAnyRole([
+                'super_admin',
+                'Administrador',
+                'Gestor de capacitación',
+                'Instructor',
+            ]);
     }
 
     // Relación con la Agencia
@@ -46,6 +56,11 @@ class User extends Authenticatable
     public function jobPosition(): BelongsTo
     {
         return $this->belongsTo(JobPosition::class);
+    }
+
+    public function enrollments()
+    {
+        return $this->hasMany(Enrollment::class);
     }
 
 
@@ -68,6 +83,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'is_active' => 'boolean',
             'password' => 'hashed',
         ];
     }

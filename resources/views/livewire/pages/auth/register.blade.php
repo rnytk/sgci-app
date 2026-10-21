@@ -15,9 +15,6 @@ new #[Layout('layouts.guest')] class extends Component
     public string $password = '';
     public string $password_confirmation = '';
 
-    /**
-     * Handle an incoming registration request.
-     */
     public function register(): void
     {
         $validated = $this->validate([
@@ -27,62 +24,13 @@ new #[Layout('layouts.guest')] class extends Component
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
-
         event(new Registered($user = User::create($validated)));
-
         Auth::login($user);
-
         $this->redirect(route('dashboard', absolute: false), navigate: true);
     }
 }; ?>
 
-<div>
-    <form wire:submit="register">
-        <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input wire:model="name" id="name" class="block mt-1 w-full" type="text" name="name" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
-        </div>
-
-        <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input wire:model="email" id="email" class="block mt-1 w-full" type="email" name="email" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
-
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input wire:model="password" id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-
-            <x-text-input wire:model="password_confirmation" id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('login') }}" wire:navigate>
-                {{ __('Already registered?') }}
-            </a>
-
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
-        </div>
-    </form>
-</div>
+<section class="mx-auto max-w-xl overflow-hidden rounded-[30px] border border-slate-100 bg-white shadow-[0_24px_70px_rgba(15,23,42,0.1)]">
+    <div class="bg-gradient-to-r from-[#124b3a] to-[#78ae28] px-7 py-8 text-white sm:px-10"><a href="{{ url('/') }}" wire:navigate class="flex w-fit items-center gap-3"><span class="flex h-12 w-10 items-center justify-center overflow-hidden rounded-xl bg-white/95"><img src="{{ asset('img/logo_sgci.png') }}" alt="SGCI" class="h-14 w-11 object-contain"></span><span class="text-xl font-extrabold">SGCI</span></a><p class="mt-8 text-xs font-bold uppercase tracking-[0.16em] text-white/75">Acceso institucional</p><h1 class="mt-2 text-3xl font-extrabold">Crear cuenta</h1></div>
+    <div class="px-7 py-8 sm:px-10 sm:py-10"><form wire:submit="register" class="space-y-5"><div><x-input-label for="name" value="Nombre completo" /><x-text-input wire:model="name" id="name" class="mt-2 block w-full bg-slate-50 px-4 py-3" type="text" name="name" required autofocus autocomplete="name" /><x-input-error :messages="$errors->get('name')" class="mt-2" /></div><div><x-input-label for="email" value="Correo institucional" /><x-text-input wire:model="email" id="email" class="mt-2 block w-full bg-slate-50 px-4 py-3" type="email" name="email" required autocomplete="username" /><x-input-error :messages="$errors->get('email')" class="mt-2" /></div><div><x-input-label for="password" value="Contraseña" /><x-text-input wire:model="password" id="password" class="mt-2 block w-full bg-slate-50 px-4 py-3" type="password" name="password" required autocomplete="new-password" /><x-input-error :messages="$errors->get('password')" class="mt-2" /></div><div><x-input-label for="password_confirmation" value="Confirmar contraseña" /><x-text-input wire:model="password_confirmation" id="password_confirmation" class="mt-2 block w-full bg-slate-50 px-4 py-3" type="password" name="password_confirmation" required autocomplete="new-password" /><x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" /></div><div class="flex items-center justify-between gap-3"><a class="text-sm font-bold text-[#5c9d33] hover:text-[#477b2d]" href="{{ route('login') }}" wire:navigate>← Volver al inicio</a><x-primary-button>Crear cuenta</x-primary-button></div></form></div>
+</section>

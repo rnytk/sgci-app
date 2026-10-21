@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use UnitEnum;
 
 class ExamResource extends Resource
@@ -36,6 +37,16 @@ class ExamResource extends Resource
     public static function table(Table $table): Table
     {
         return ExamsTable::configure($table);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+
+        return $user?->hasRole('Instructor')
+            ? $query->whereHas('training', fn (Builder $trainingQuery) => $trainingQuery->where('user_id', $user->id))
+            : $query;
     }
 
     public static function getRelations(): array

@@ -41,14 +41,13 @@
                     <tr>
                         <td style="padding: 40px 35px;">
                             <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #334155;">Hola, <strong style="color: #0f172a;">{{ $user->name }}</strong>.</p>
-                            <p style="margin: 0 0 25px 0; font-size: 16px; line-height: 1.6; color: #475569;">Nos alegra informarte que tu cuenta ha sido creada exitosamente. A continuación, encontrarás tus credenciales de acceso temporal para ingresar al sistema:</p>
-                            
-                            <!-- Caja de Credenciales -->
+                            <p style="margin: 0 0 25px 0; font-size: 16px; line-height: 1.6; color: #475569;">Nos alegra informarte que tu cuenta ha sido creada exitosamente. Para activar tu acceso, define una contraseña segura mediante el siguiente enlace.</p>
+
+                            <!-- Caja de cuenta -->
                             <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; margin-bottom: 25px;">
                                 <tr>
                                     <td style="padding: 20px;">
-                                        <p style="margin: 0 0 12px 0; font-size: 15px; color: #334155;"><strong>👤 Usuario:</strong> {{ $user->email }}</p>
-                                        <p style="margin: 0; font-size: 15px; color: #334155;"><strong>🔑 Contraseña:</strong> <span style="background-color: #e2e8f0; padding: 4px 8px; border-radius: 4px; font-family: 'Courier New', Courier, monospace; font-weight: bold; letter-spacing: 1px;">{{ $temporaryPassword }}</span></p>
+                                        <p style="margin: 0; font-size: 15px; color: #334155;"><strong>👤 Usuario:</strong> {{ $user->email }}</p>
                                     </td>
                                 </tr>
                             </table>
@@ -59,7 +58,7 @@
                             <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                 <tr>
                                     <td align="center">
-                                        <a href="{{ route('password.reset', ['token' => 'init']) }}" class="button" style="display: inline-block; background-color: #4C8C2B; color: #ffffff; font-size: 16px; font-weight: 600; text-decoration: none; padding: 14px 30px; border-radius: 6px;">Cambiar mi contraseña</a>
+                                        <a href="{{ $resetUrl }}" class="button" style="display: inline-block; background-color: #4C8C2B; color: #ffffff; font-size: 16px; font-weight: 600; text-decoration: none; padding: 14px 30px; border-radius: 6px;">Activar mi cuenta</a>
                                     </td>
                                 </tr>
                             </table>
@@ -67,7 +66,7 @@
                             <!-- Enlace alternativo de respaldo -->
                             <p style="margin: 35px 0 0 0; font-size: 14px; line-height: 1.5; color: #64748b;">Si tienes problemas con el botón, copia y pega el siguiente enlace directamente en tu navegador web:</p>
                             <p style="margin: 5px 0 0 0; font-size: 13px; color: #2563eb; word-break: break-all;">
-                                <a href="{{ route('password.reset', ['token' => 'init']) }}" style="color: #2563eb; text-decoration: underline;">{{ route('password.reset', ['token' => 'init']) }}</a>
+                                <a href="{{ $resetUrl }}" style="color: #2563eb; text-decoration: underline;">{{ $resetUrl }}</a>
                             </p>
                         </td>
                     </tr>
