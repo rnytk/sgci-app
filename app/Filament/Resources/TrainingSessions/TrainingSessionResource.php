@@ -1,0 +1,57 @@
+<?php
+
+namespace App\Filament\Resources\TrainingSessions;
+
+use App\Filament\Resources\TrainingSessions\Pages\CreateTrainingSession;
+use App\Filament\Resources\TrainingSessions\Pages\EditTrainingSession;
+use App\Filament\Resources\TrainingSessions\Pages\ListTrainingSessions;
+use App\Filament\Resources\TrainingSessions\Schemas\TrainingSessionForm;
+use App\Filament\Resources\TrainingSessions\Tables\TrainingSessionsTable;
+use App\Filament\Resources\TrainingSessions\RelationManagers\EnrollmentsRelationManager;
+use App\Models\TrainingSession;
+use BackedEnum;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Table;
+use UnitEnum;
+
+class TrainingSessionResource extends Resource
+{
+    protected static ?string $model = TrainingSession::class;
+
+    protected static ?string $modelLabel = 'Programación';
+    protected static ?string $pluralModelLabel = 'Programaciónes';
+    protected static ?string $navigationLabel = 'Programaciónes';
+
+
+    protected static string | UnitEnum | null $navigationGroup = 'Capacitaciones';
+
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPresentationChartBar;
+
+    public static function form(Schema $schema): Schema
+    {
+        return TrainingSessionForm::configure($schema);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return TrainingSessionsTable::configure($table);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            EnrollmentsRelationManager::class,
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => ListTrainingSessions::route('/'),
+            'create' => CreateTrainingSession::route('/create'),
+            'edit' => EditTrainingSession::route('/{record}/edit'),
+        ];
+    }
+}
