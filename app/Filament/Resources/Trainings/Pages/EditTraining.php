@@ -13,6 +13,13 @@ class EditTraining extends EditRecord
 
     protected static string $resource = TrainingResource::class;
 
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $data['user_id'] = $this->record->user_id;
+
+        return $data;
+    }
+
     protected function getHeaderActions(): array
     {
         return [

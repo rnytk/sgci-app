@@ -18,6 +18,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use UnitEnum;
 
 class ExamAttemptResource extends Resource
@@ -78,6 +79,11 @@ class ExamAttemptResource extends Resource
             ->recordActions([
                 EditAction::make()->label('Calificar'),
             ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->visibleTo(auth()->user());
     }
 
     public static function getPages(): array

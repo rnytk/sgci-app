@@ -4,72 +4,29 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\TrainingSession;
+use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class TrainingSessionPolicy
 {
     use HandlesAuthorization;
-    
-    public function viewAny(AuthUser $authUser): bool
+
+    public function before(User $user, string $ability): ?bool
     {
-        return $authUser->can('ViewAny:TrainingSession');
+        return $user->isSuperAdministrator() ? true : null;
     }
 
-    public function view(AuthUser $authUser, TrainingSession $trainingSession): bool
-    {
-        return $authUser->can('View:TrainingSession');
-    }
-
-    public function create(AuthUser $authUser): bool
-    {
-        return $authUser->can('Create:TrainingSession');
-    }
-
-    public function update(AuthUser $authUser, TrainingSession $trainingSession): bool
-    {
-        return $authUser->can('Update:TrainingSession');
-    }
-
-    public function delete(AuthUser $authUser, TrainingSession $trainingSession): bool
-    {
-        return $authUser->can('Delete:TrainingSession');
-    }
-
-    public function deleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('DeleteAny:TrainingSession');
-    }
-
-    public function restore(AuthUser $authUser, TrainingSession $trainingSession): bool
-    {
-        return $authUser->can('Restore:TrainingSession');
-    }
-
-    public function forceDelete(AuthUser $authUser, TrainingSession $trainingSession): bool
-    {
-        return $authUser->can('ForceDelete:TrainingSession');
-    }
-
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:TrainingSession');
-    }
-
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:TrainingSession');
-    }
-
-    public function replicate(AuthUser $authUser, TrainingSession $trainingSession): bool
-    {
-        return $authUser->can('Replicate:TrainingSession');
-    }
-
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:TrainingSession');
-    }
-
+    public function viewAny(User $user): bool { return $user->can('ViewAny:TrainingSession'); }
+    public function view(User $user, TrainingSession $session): bool { return $user->can('View:TrainingSession') && $session->isOwnedBy($user); }
+    public function create(User $user): bool { return $user->can('Create:TrainingSession'); }
+    public function update(User $user, TrainingSession $session): bool { return $user->can('Update:TrainingSession') && $session->isOwnedBy($user); }
+    public function delete(User $user, TrainingSession $session): bool { return $user->can('Delete:TrainingSession') && $session->isOwnedBy($user); }
+    public function deleteAny(User $user): bool { return $user->can('DeleteAny:TrainingSession'); }
+    public function restore(User $user, TrainingSession $session): bool { return $user->can('Restore:TrainingSession') && $session->isOwnedBy($user); }
+    public function forceDelete(User $user, TrainingSession $session): bool { return $user->can('ForceDelete:TrainingSession') && $session->isOwnedBy($user); }
+    public function forceDeleteAny(User $user): bool { return $user->can('ForceDeleteAny:TrainingSession'); }
+    public function restoreAny(User $user): bool { return $user->can('RestoreAny:TrainingSession'); }
+    public function replicate(User $user, TrainingSession $session): bool { return $user->can('Replicate:TrainingSession') && $session->isOwnedBy($user); }
+    public function reorder(User $user): bool { return $user->can('Reorder:TrainingSession'); }
 }

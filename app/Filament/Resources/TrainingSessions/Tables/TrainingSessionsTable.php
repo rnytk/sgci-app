@@ -26,6 +26,13 @@ class TrainingSessionsTable
                     ->dateTime('d/m/Y H:i')
                     ->sortable(),
 
+                TextColumn::make('enrollments_count')
+                    ->label('Personas asignadas')
+                    ->counts('enrollments')
+                    ->alignCenter()
+                    ->sortable()
+                    ->badge(),
+
                 IconColumn::make('require_exam')
                     ->label('Examen')
                     ->boolean()

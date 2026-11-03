@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 
@@ -28,5 +29,14 @@ class MediaResource extends Model
         }
 
         return Storage::url($this->url_path);
+    }
+
+    public function scopeVisibleTo(Builder $query, User $user): Builder
+    {
+        if ($user->isSuperAdministrator()) {
+            return $query;
+        }
+
+        return $query->whereHas('training', fn (Builder $trainingQuery) => $trainingQuery->visibleTo($user));
     }
 }

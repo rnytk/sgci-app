@@ -45,6 +45,11 @@ class User extends Authenticatable implements FilamentUser
         ]);
     }
 
+    public function isSuperAdministrator(): bool
+    {
+        return $this->hasRole('super_administrador');
+    }
+
     // Relación con la Agencia
     public function agency(): BelongsTo
     {

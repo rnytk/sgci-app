@@ -37,7 +37,8 @@ class SgciRolesSeeder extends Seeder
 
         $administratorPermissions = $permissions->filter(
             fn (string $permission) => in_array(Str::afterLast($permission, ':'), $administratorResources, true)
-                || $permission === 'View:Dashboard',
+                || $permission === 'View:Dashboard'
+                || $permission === 'Review:ExamAttempt',
         );
         $administrator->syncPermissions($administratorPermissions);
 

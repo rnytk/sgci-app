@@ -22,8 +22,7 @@ class TrainingSessionForm
                 ->schema([
                     // Se asigna automáticamente al usuario logueado
                     Hidden::make('trainer_id')
-                        //->default(auth()->id()),
-                        ->default(fn () => Auth::id()),
+                        ->dehydrated(false),
 
                     Select::make('training_id')
                         ->label('Capacitación Maestro')
@@ -31,7 +30,7 @@ class TrainingSessionForm
                             name: 'training', 
                             titleAttribute: 'title',
                             // Seguridad: Solo ves lo que tú creaste en el catálogo
-                            modifyQueryUsing: fn (Builder $query) => $query->where('user_id', Auth::id())
+                            modifyQueryUsing: fn (Builder $query) => $query->visibleTo(Auth::user())
                         )
                         ->required()
                         ->searchable(),

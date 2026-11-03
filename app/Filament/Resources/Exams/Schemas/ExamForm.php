@@ -28,7 +28,7 @@ class ExamForm
                         ->relationship(
                             name: 'training', 
                             titleAttribute: 'title',
-                            modifyQueryUsing: fn (Builder $query) => $query->where('user_id', auth()->id())
+                            modifyQueryUsing: fn (Builder $query) => $query->visibleTo(auth()->user())
                         )
                         ->required()
                         ->searchable(),

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Builder;
 
 class TrainingSession extends Model
 {
@@ -38,6 +39,20 @@ class TrainingSession extends Model
     public function enrollments(): HasMany
     {
         return $this->hasMany(Enrollment::class);
+    }
+
+    public function scopeVisibleTo(Builder $query, User $user): Builder
+    {
+        if ($user->isSuperAdministrator()) {
+            return $query;
+        }
+
+        return $query->where('trainer_id', $user->id);
+    }
+
+    public function isOwnedBy(User $user): bool
+    {
+        return $this->trainer_id === $user->id;
     }
 }
 

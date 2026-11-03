@@ -2,28 +2,22 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
 use App\Models\Enrollment;
+use App\Services\AttendanceService;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon; // IMPORTANTE: Agregamos Carbon para el manejo de tiempo
+use Livewire\Component;
 
 class UserTrainings extends Component
 {
     // NUEVO MÉTODO: Registra la asistencia y redirige
-    public function markAttendanceAndJoin($enrollmentId)
+    public function markAttendanceAndJoin($enrollmentId, AttendanceService $attendanceService): void
     {
         // Buscamos el registro asegurándonos que sea del usuario logueado
         $enrollment = Enrollment::where('id', $enrollmentId)
             ->where('user_id', Auth::id())
             ->firstOrFail();
 
-        // Si no tiene fecha de asistencia, se la colocamos
-        if (is_null($enrollment->attended_at)) {
-            $enrollment->update([
-                'attended_at' => Carbon::now(),
-                'status' => 'en progreso', // Cambiamos el estado para que se refleje visualmente
-            ]);
-        }
+        $attendanceService->recordFromMeetingLink($enrollment);
 
         // Redirigimos a la sesión
         $meetingLink = $enrollment->trainingSession->meeting_link;
@@ -38,15 +32,15 @@ class UserTrainings extends Component
         // Traemos las inscripciones del usuario y cargamos la sesión, la capacitación y el instructor[cite: 5]
         $enrollments = Enrollment::with([
             'trainingSession.training',
-            'trainingSession.trainer'
+            'trainingSession.trainer',
         ])
-        ->where('user_id', Auth::id())
-        ->orderBy('created_at', 'desc')
-        ->get();
-//dd($enrollments->pluck('trainingSession')); 
+            ->where('user_id', Auth::id())
+            ->orderBy('created_at', 'desc')
+            ->get();
+        // dd($enrollments->pluck('trainingSession'));
 
         return view('livewire.user-trainings', [
-            'enrollments' => $enrollments
+            'enrollments' => $enrollments,
         ]);
     }
 }

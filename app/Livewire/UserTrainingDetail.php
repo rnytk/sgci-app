@@ -2,11 +2,11 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
-use Livewire\Attributes\Layout;
 use App\Models\Enrollment;
+use App\Services\AttendanceService;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon; // IMPORTANTE: Agregamos Carbon
+use Livewire\Attributes\Layout;
+use Livewire\Component;
 
 #[Layout('layouts.app')]
 class UserTrainingDetail extends Component
@@ -23,23 +23,17 @@ class UserTrainingDetail extends Component
         // Cargamos todas las relaciones incluyendo los recursos multimedia[cite: 4]
         $this->enrollment->load([
             'trainingSession.training.mediaResources',
-            'trainingSession.trainer'
+            'trainingSession.trainer',
         ]);
     }
 
     // NUEVO MÉTODO: Aprovechamos que la propiedad $enrollment ya existe
-    public function markAttendanceAndJoin($enrollmentId)
+    public function markAttendanceAndJoin($enrollmentId, AttendanceService $attendanceService): void
     {
         // Validamos por seguridad extra que el ID recibido coincida con el cargado
         if ($this->enrollment->id == $enrollmentId) {
-            
-            // Si el campo está vacío, guardamos el sello de tiempo
-            if (is_null($this->enrollment->attended_at)) {
-                $this->enrollment->update([
-                    'attended_at' => Carbon::now(),
-                    'status' => 'en progreso',
-                ]);
-            }
+
+            $this->enrollment = $attendanceService->recordFromMeetingLink($this->enrollment);
 
             // Redirigimos
             $this->dispatch('open-meeting', url: $this->enrollment->trainingSession->meeting_link);
@@ -49,9 +43,9 @@ class UserTrainingDetail extends Component
     public function render()
     {
         return view('livewire.user-training-detail', [
-            'session'  => $this->enrollment->trainingSession,
+            'session' => $this->enrollment->trainingSession,
             'training' => $this->enrollment->trainingSession->training,
-            'trainer'  => $this->enrollment->trainingSession->trainer,
+            'trainer' => $this->enrollment->trainingSession->trainer,
             'latestAttempt' => $this->enrollment->examAttempts()->latest('id')->first(),
         ]);
     }

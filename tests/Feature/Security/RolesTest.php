@@ -32,7 +32,7 @@ test('inactive administrative users cannot access the Filament panel', function 
     expect($user->canAccessPanel(Filament::getPanel('admin')))->toBeFalse();
 });
 
-test('only evaluators and super administrators receive the manual grading permission', function () {
+test('administrators, evaluators and super administrators receive the manual grading permission', function () {
     $administrator = User::factory()->create();
     $administrator->assignRole('administrador_capacitaciones');
 
@@ -42,7 +42,7 @@ test('only evaluators and super administrators receive the manual grading permis
     $superAdmin = User::factory()->create();
     $superAdmin->assignRole('super_administrador');
 
-    expect($administrator->can('Review:ExamAttempt'))->toBeFalse()
+    expect($administrator->can('Review:ExamAttempt'))->toBeTrue()
         ->and($evaluator->can('Review:ExamAttempt'))->toBeTrue()
         ->and($superAdmin->can('Review:ExamAttempt'))->toBeTrue();
 });

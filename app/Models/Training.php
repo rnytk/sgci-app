@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class Training extends Model
 {
@@ -25,6 +26,20 @@ class Training extends Model
     public function exams()
     {
         return $this->hasOne(Exam::class);
+    }
+
+    public function scopeVisibleTo(Builder $query, User $user): Builder
+    {
+        if ($user->isSuperAdministrator()) {
+            return $query;
+        }
+
+        return $query->where('user_id', $user->id);
+    }
+
+    public function isOwnedBy(User $user): bool
+    {
+        return $this->user_id === $user->id;
     }
     
 }

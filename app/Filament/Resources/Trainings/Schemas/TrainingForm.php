@@ -27,8 +27,7 @@ class TrainingForm
                     ->schema([
                         // Trazabilidad: Quién registra el curso
                         Hidden::make('user_id')
-                            //->default(auth()->id()),
-                              ->default(fn () => Auth::id()),
+                            ->dehydrated(false),
                               
                         TextInput::make('title')
                             ->label('Título de la Capacitación')

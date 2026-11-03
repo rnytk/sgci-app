@@ -4,72 +4,29 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\Exam;
+use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class ExamPolicy
 {
     use HandlesAuthorization;
-    
-    public function viewAny(AuthUser $authUser): bool
+
+    public function before(User $user, string $ability): ?bool
     {
-        return $authUser->can('ViewAny:Exam');
+        return $user->isSuperAdministrator() ? true : null;
     }
 
-    public function view(AuthUser $authUser, Exam $exam): bool
-    {
-        return $authUser->can('View:Exam');
-    }
-
-    public function create(AuthUser $authUser): bool
-    {
-        return $authUser->can('Create:Exam');
-    }
-
-    public function update(AuthUser $authUser, Exam $exam): bool
-    {
-        return $authUser->can('Update:Exam');
-    }
-
-    public function delete(AuthUser $authUser, Exam $exam): bool
-    {
-        return $authUser->can('Delete:Exam');
-    }
-
-    public function deleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('DeleteAny:Exam');
-    }
-
-    public function restore(AuthUser $authUser, Exam $exam): bool
-    {
-        return $authUser->can('Restore:Exam');
-    }
-
-    public function forceDelete(AuthUser $authUser, Exam $exam): bool
-    {
-        return $authUser->can('ForceDelete:Exam');
-    }
-
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:Exam');
-    }
-
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:Exam');
-    }
-
-    public function replicate(AuthUser $authUser, Exam $exam): bool
-    {
-        return $authUser->can('Replicate:Exam');
-    }
-
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:Exam');
-    }
-
+    public function viewAny(User $user): bool { return $user->can('ViewAny:Exam'); }
+    public function view(User $user, Exam $exam): bool { return $user->can('View:Exam') && $exam->isOwnedBy($user); }
+    public function create(User $user): bool { return $user->can('Create:Exam'); }
+    public function update(User $user, Exam $exam): bool { return $user->can('Update:Exam') && $exam->isOwnedBy($user); }
+    public function delete(User $user, Exam $exam): bool { return $user->can('Delete:Exam') && $exam->isOwnedBy($user); }
+    public function deleteAny(User $user): bool { return $user->can('DeleteAny:Exam'); }
+    public function restore(User $user, Exam $exam): bool { return $user->can('Restore:Exam') && $exam->isOwnedBy($user); }
+    public function forceDelete(User $user, Exam $exam): bool { return $user->can('ForceDelete:Exam') && $exam->isOwnedBy($user); }
+    public function forceDeleteAny(User $user): bool { return $user->can('ForceDeleteAny:Exam'); }
+    public function restoreAny(User $user): bool { return $user->can('RestoreAny:Exam'); }
+    public function replicate(User $user, Exam $exam): bool { return $user->can('Replicate:Exam') && $exam->isOwnedBy($user); }
+    public function reorder(User $user): bool { return $user->can('Reorder:Exam'); }
 }
