@@ -7,6 +7,7 @@ use App\Models\Training;
 use App\Models\TrainingSession;
 use App\Models\User;
 use App\Services\ExamAttemptService;
+use Illuminate\Validation\ValidationException;
 
 function examContext(): array
 {
@@ -36,6 +37,8 @@ function examContext(): array
         'enrollment' => Enrollment::create([
             'training_session_id' => $session->id,
             'user_id' => $student->id,
+            'attendance_status' => Enrollment::ATTENDANCE_PRESENT,
+            'attended_at' => now(),
         ]),
         'evaluator' => User::factory()->create(),
     ];
@@ -73,7 +76,7 @@ test('an exam with open questions remains pending even when automatic points pas
         ->and($enrollment->fresh()->status)->toBe('pendiente_calificacion');
 
     expect(fn () => $service->finalize($attempt, $evaluator))
-        ->toThrow(\DomainException::class);
+        ->toThrow(DomainException::class);
 
     $openAnswer = $attempt->answers()->where('question_id', $openQuestion->id)->firstOrFail();
     $service->gradeOpenAnswer($openAnswer, 0, $evaluator);
@@ -107,5 +110,5 @@ test('a multiple choice-only exam is finalized automatically and accepts one att
         ->and($attempt->passed)->toBeTrue();
 
     expect(fn () => $service->submit($enrollment, $exam, [$question->id => $option->id]))
-        ->toThrow(\Illuminate\Validation\ValidationException::class);
+        ->toThrow(ValidationException::class);
 });

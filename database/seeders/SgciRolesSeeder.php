@@ -40,6 +40,14 @@ class SgciRolesSeeder extends Seeder
                 || $permission === 'View:Dashboard'
                 || $permission === 'Review:ExamAttempt',
         );
+
+        $administratorPermissions = $administratorPermissions->merge(
+            $permissions->filter(fn (string $permission) => in_array($permission, [
+                'ViewAny:CollaboratorGroup',
+                'View:CollaboratorGroup',
+            ], true)),
+        );
+
         $administrator->syncPermissions($administratorPermissions);
 
         $evaluator->syncPermissions($permissions->filter(

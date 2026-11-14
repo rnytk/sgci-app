@@ -36,6 +36,13 @@ class CertificateService
 
         $backgroundContents = Storage::disk('public')->get($session->diploma_bg);
         $mimeType = Storage::disk('public')->mimeType($session->diploma_bg) ?: 'image/png';
+        $imageDimensions = getimagesizefromstring($backgroundContents);
+
+        abort_unless($imageDimensions !== false, 404);
+
+        [$imageWidth, $imageHeight] = $imageDimensions;
+        $pageWidth = 842.0;
+        $pageHeight = $pageWidth * ($imageHeight / $imageWidth);
         $backgroundDataUri = sprintf(
             'data:%s;base64,%s',
             $mimeType,
@@ -53,8 +60,10 @@ class CertificateService
             'trainingTitle' => $session->training->title,
             'approvalDate' => $attempt->finalized_at,
             'backgroundDataUri' => $backgroundDataUri,
+            'pageWidth' => $pageWidth,
+            'pageHeight' => $pageHeight,
         ])
-            ->setPaper('a4', 'landscape')
+            ->setPaper([0, 0, $pageWidth, $pageHeight])
             ->download($filename);
     }
 }

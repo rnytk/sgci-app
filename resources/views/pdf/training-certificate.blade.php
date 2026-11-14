@@ -3,62 +3,79 @@
 <head>
     <meta charset="utf-8">
     <style>
-        @page { margin: 0; size: A4 landscape; }
+        @page {
+            margin: 0;
+            size: {{ $pageWidth }}pt {{ $pageHeight }}pt;
+        }
 
-        * { box-sizing: border-box; }
+        * {
+            box-sizing: border-box;
+        }
 
         html, body {
             height: 100%;
             margin: 0;
             overflow: hidden;
-            color: #102a43;
             font-family: DejaVu Sans, sans-serif;
         }
 
         .certificate {
-            align-items: center;
-            background-image: url('{{ $backgroundDataUri }}');
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: cover;
-            display: flex;
             height: 100%;
-            justify-content: center;
-            padding: 25mm 32mm;
             position: fixed;
-            text-align: center;
             top: 0;
             left: 0;
             width: 100%;
         }
 
-        .certificate::before {
-            background: rgba(255, 255, 255, .72);
-            content: '';
-            inset: 20mm 25mm;
+        .template {
+            display: block;
+            height: 100%;
             position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1;
         }
 
-        .content { position: relative; width: 100%; }
-        .eyebrow { color: #b7791f; font-size: 14pt; font-weight: bold; letter-spacing: 3px; text-transform: uppercase; }
-        h1 { font-family: DejaVu Serif, serif; font-size: 34pt; margin: 13mm 0 6mm; }
-        .lead { font-size: 14pt; margin: 0 0 5mm; }
-        .student { color: #1a365d; font-family: DejaVu Serif, serif; font-size: 26pt; font-weight: bold; margin: 0 0 7mm; }
-        .training { font-size: 18pt; font-weight: bold; margin: 0 auto 10mm; max-width: 210mm; }
-        .date { font-size: 12pt; margin: 0; }
+        .field {
+            color: #0a3b7a;
+            position: absolute;
+            z-index: 2;
+        }
+
+        .student-name {
+            font-size: 18pt;
+            font-weight: bold;
+            left: 10.5%;
+            line-height: 1.1;
+            text-align: center;
+            top: 43.1%;
+            width: 79%;
+        }
+
+        .training-title {
+            font-size: 11pt;
+            font-weight: bold;
+            left: 8%;
+            line-height: 1.25;
+            text-align: center;
+            top: 54.6%;
+            width: 84%;
+        }
+
+        .approval-date {
+            font-size: 11pt;
+            left: 12.5%;
+            top: 59.6%;
+        }
     </style>
 </head>
 <body>
     <main class="certificate">
-        <section class="content">
-            <p class="eyebrow">Sistema de Gestión de Capacitación Interna</p>
-            <h1>Diploma de participación</h1>
-            <p class="lead">Se otorga el presente diploma a</p>
-            <p class="student">{{ $studentName }}</p>
-            <p class="lead">por haber aprobado la capacitación</p>
-            <p class="training">{{ $trainingTitle }}</p>
-            <p class="date">Fecha de aprobación: {{ $approvalDate->translatedFormat('d \d\e F \d\e Y') }}</p>
-        </section>
+        <img class="template" src="{{ $backgroundDataUri }}" alt="Plantilla de diploma">
+        <div class="field student-name">{{ $studentName }}</div>
+        <div class="field training-title">{{ $trainingTitle }}</div>
+        <div class="field approval-date">{{ $approvalDate->translatedFormat('d \d\e F \d\e Y') }}</div>
     </main>
 </body>
 </html>

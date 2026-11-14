@@ -2,13 +2,16 @@
 
 namespace App\Filament\Resources\TrainingSessions\RelationManagers;
 
+use App\Models\Agency;
+use App\Models\CollaboratorGroup;
 use App\Models\Enrollment;
+use App\Models\JobPosition;
 use App\Models\User;
 use App\Services\AttendanceService;
+use App\Services\EnrollmentAssignmentResult;
+use App\Services\EnrollmentAssignmentService;
 use Filament\Actions\Action;
-use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\DissociateAction;
@@ -16,6 +19,7 @@ use Filament\Actions\DissociateBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
@@ -93,34 +97,65 @@ class EnrollmentsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                CreateAction::make()->label('Asignar uno'),
-                /* AssociateAction::make() */
+                Action::make('assign_one')
+                    ->label('Asignar uno')
+                    ->icon('heroicon-o-user-plus')
+                    ->schema([
+                        $this->singleUserSelect(),
+                    ])
+                    ->action(function (array $data): void {
+                        $result = app(EnrollmentAssignmentService::class)->assign($this->getOwnerRecord(), [
+                            'assignment_type' => EnrollmentAssignmentService::TYPE_MANUAL,
+                            'user_ids' => [$data['user_id']],
+                        ]);
 
-                Action::make('bulk_assign')
-                    ->label('Asignación Masiva')
+                        $this->sendAssignmentNotification($result);
+                    }),
+                Action::make('assign_collaborators')
+                    ->label('Asignar colaboradores')
                     ->icon('heroicon-o-users')
                     ->color('info')
-                    ->form([
+                    ->modalHeading('Asignar colaboradores')
+                    ->modalDescription('Elige un criterio y el sistema evitará duplicar inscripciones existentes.')
+                    ->modalSubmitActionLabel('Asignar')
+                    ->schema([
+                        Select::make('assignment_type')
+                            ->label('Asignar por')
+                            ->options([
+                                EnrollmentAssignmentService::TYPE_AGENCY => 'Agencia',
+                                EnrollmentAssignmentService::TYPE_JOB_POSITION => 'Puesto',
+                                EnrollmentAssignmentService::TYPE_GROUP => 'Grupo de colaboradores',
+                                EnrollmentAssignmentService::TYPE_MANUAL => 'Selección manual',
+                            ])
+                            ->default(EnrollmentAssignmentService::TYPE_AGENCY)
+                            ->required()
+                            ->live(),
                         Select::make('agency_id')
-                            ->label('Filtrar por Agencia')
-                            ->relationship('user.agency', 'name')
-                            ->placeholder('Todas las agencias'),
+                            ->label('Agencia')
+                            ->options(fn (): array => Agency::query()->orderBy('name')->pluck('name', 'id')->all())
+                            ->searchable()
+                            ->visible(fn (Get $get): bool => $get('assignment_type') === EnrollmentAssignmentService::TYPE_AGENCY)
+                            ->required(fn (Get $get): bool => $get('assignment_type') === EnrollmentAssignmentService::TYPE_AGENCY),
+                        Select::make('job_position_id')
+                            ->label('Puesto')
+                            ->options(fn (): array => JobPosition::query()->orderBy('name')->pluck('name', 'id')->all())
+                            ->searchable()
+                            ->visible(fn (Get $get): bool => $get('assignment_type') === EnrollmentAssignmentService::TYPE_JOB_POSITION)
+                            ->required(fn (Get $get): bool => $get('assignment_type') === EnrollmentAssignmentService::TYPE_JOB_POSITION),
+                        Select::make('collaborator_group_id')
+                            ->label('Grupo de colaboradores')
+                            ->options(fn (): array => CollaboratorGroup::query()->orderBy('name')->pluck('name', 'id')->all())
+                            ->searchable()
+                            ->visible(fn (Get $get): bool => $get('assignment_type') === EnrollmentAssignmentService::TYPE_GROUP)
+                            ->required(fn (Get $get): bool => $get('assignment_type') === EnrollmentAssignmentService::TYPE_GROUP),
+                        $this->manualUserSelect()
+                            ->visible(fn (Get $get): bool => $get('assignment_type') === EnrollmentAssignmentService::TYPE_MANUAL)
+                            ->required(fn (Get $get): bool => $get('assignment_type') === EnrollmentAssignmentService::TYPE_MANUAL),
                     ])
-                    ->action(function (array $data) {
-                        $sessionId = $this->getOwnerRecord()->id;
-                        $query = User::query();
+                    ->action(function (array $data): void {
+                        $result = app(EnrollmentAssignmentService::class)->assign($this->getOwnerRecord(), $data);
 
-                        if ($data['agency_id']) {
-                            $query->where('agency_id', $data['agency_id']);
-                        }
-
-                        $users = $query->get();
-                        foreach ($users as $user) {
-                            Enrollment::firstOrCreate([
-                                'training_session_id' => $sessionId,
-                                'user_id' => $user->id,
-                            ]);
-                        }
+                        $this->sendAssignmentNotification($result);
                     }),
 
             ])
@@ -171,5 +206,44 @@ class EnrollmentsRelationManager extends RelationManager
                     DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    private function singleUserSelect(): Select
+    {
+        return Select::make('user_id')
+            ->label('Colaborador')
+            ->options($this->userOptions())
+            ->searchable()
+            ->required();
+    }
+
+    private function manualUserSelect(): Select
+    {
+        return Select::make('user_ids')
+            ->label('Colaboradores')
+            ->options($this->userOptions())
+            ->multiple()
+            ->searchable();
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function userOptions(): array
+    {
+        return User::query()
+            ->orderBy('name')
+            ->get()
+            ->mapWithKeys(fn (User $user): array => [$user->id => "{$user->name} ({$user->email})"])
+            ->all();
+    }
+
+    private function sendAssignmentNotification(EnrollmentAssignmentResult $result): void
+    {
+        Notification::make()
+            ->title($result->created > 0 ? 'Asignación completada' : 'No se crearon inscripciones')
+            ->body($result->summary())
+            ->color($result->created > 0 ? 'success' : 'warning')
+            ->send();
     }
 }

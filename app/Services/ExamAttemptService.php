@@ -6,7 +6,6 @@ use App\Models\Enrollment;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Models\ExamAttemptAnswer;
-use App\Models\Question;
 use App\Models\User;
 use DomainException;
 use Illuminate\Support\Facades\DB;
@@ -27,6 +26,18 @@ class ExamAttemptService
 
             if ($exam->training_id !== $enrollment->trainingSession->training_id) {
                 throw new DomainException('La evaluación no pertenece a la capacitación de esta inscripción.');
+            }
+
+            if (! $enrollment->hasPresentAttendance()) {
+                throw new DomainException('Debes tener asistencia registrada como presente para realizar la evaluación.');
+            }
+
+            if (
+                ! $enrollment->trainingSession->require_exam
+                || ! $enrollment->trainingSession->exam_enabled
+                || now()->greaterThan($enrollment->trainingSession->exam_expires_at)
+            ) {
+                throw new DomainException('La evaluación no está disponible en este momento.');
             }
 
             if (ExamAttempt::query()

@@ -2,21 +2,22 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
-use Livewire\Attributes\Layout;
 use App\Models\Enrollment;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Services\ExamAttemptService;
 use DomainException;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Layout;
+use Livewire\Component;
 
 #[Layout('layouts.app')]
 class UserTrainingExam extends Component
 {
     public Enrollment $enrollment;
+
     public Exam $exam;
-    
+
     // Respuestas indexadas por pregunta: option_id para múltiple o texto para abierta.
     public $answers = [];
 
@@ -29,6 +30,10 @@ class UserTrainingExam extends Component
 
         $this->enrollment = $enrollment;
         $session = $enrollment->trainingSession;
+
+        if (! $enrollment->hasPresentAttendance()) {
+            abort(403, 'Debes tener asistencia registrada como presente para realizar la evaluación.');
+        }
 
         if (! $session->require_exam || ! $session->exam_enabled || now()->greaterThan($session->exam_expires_at)) {
             abort(403, 'La evaluación no está disponible en este momento.');
@@ -44,6 +49,7 @@ class UserTrainingExam extends Component
             ->where('status', '!=', ExamAttempt::STATUS_REPLACED)
             ->exists()) {
             session()->flash('error', 'Ya registraste el único intento disponible para esta capacitación.');
+
             return redirect()->route('user.training.detail', $enrollment->id);
         }
     }
@@ -52,7 +58,7 @@ class UserTrainingExam extends Component
     {
         $rules = [];
         foreach ($this->exam->questions as $question) {
-            $rules['answers.' . $question->id] = $question->type === 'open'
+            $rules['answers.'.$question->id] = $question->type === 'open'
                 ? ['required', 'string', 'max:5000']
                 : ['required', 'integer'];
         }
@@ -75,9 +81,9 @@ class UserTrainingExam extends Component
         if ($attempt->status === ExamAttempt::STATUS_PENDING_REVIEW) {
             session()->flash('success', 'Tu examen fue enviado y está pendiente de calificación manual.');
         } elseif ($attempt->passed) {
-            session()->flash('success', '¡Felicidades! Has aprobado el examen con ' . number_format($attempt->score, 2) . ' puntos.');
+            session()->flash('success', '¡Felicidades! Has aprobado el examen con '.number_format($attempt->score, 2).' puntos.');
         } else {
-            session()->flash('error', 'Has obtenido ' . number_format($attempt->score, 2) . ' puntos. La nota mínima es ' . $this->exam->passing_score . '.');
+            session()->flash('error', 'Has obtenido '.number_format($attempt->score, 2).' puntos. La nota mínima es '.$this->exam->passing_score.'.');
         }
 
         return redirect()->route('user.training.detail', $this->enrollment->id);

@@ -41,6 +41,11 @@ class Enrollment extends Model
         return [self::ATTENDANCE_PRESENT, self::ATTENDANCE_ABSENT];
     }
 
+    public function hasPresentAttendance(): bool
+    {
+        return $this->attendance_status === self::ATTENDANCE_PRESENT;
+    }
+
     public function trainingSession(): BelongsTo
     {
         return $this->belongsTo(TrainingSession::class);

@@ -14,11 +14,17 @@ class TrainingsTable
     {
         return $table
             ->columns([
+                TextColumn::make('index')
+                    ->label('No.')
+                    ->rowIndex(),
                 TextColumn::make('title')
+                    ->label('Título')
                     ->searchable(),
                 TextColumn::make('description')
+                    ->label('Descripción')
                     ->searchable(),
                 TextColumn::make('slug')
+                    ->label('Slug')
                     ->searchable(),
                 TextColumn::make('user.name')
                     ->label('Creador')

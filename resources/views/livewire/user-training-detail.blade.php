@@ -278,7 +278,7 @@
                                         <div class="bg-red-50 rounded-xl p-4 border border-red-200 text-center mb-3">
                                             <p class="text-sm font-bold text-red-700">El intento fue reprobado. No hay más intentos disponibles.</p>
                                         </div>
-                                    @else
+                                    @elseif ($enrollment->hasPresentAttendance())
                                         <a href="{{ route('user.training.exam', $enrollment->id) }}" wire:navigate
                                             class="w-full flex justify-center items-center py-3 px-4 border border-kato-blue rounded-xl shadow-sm text-sm font-bold text-kato-blue hover:bg-kato-blue hover:text-white transition-colors group">
                                             <svg class="w-5 h-5 mr-2 text-kato-blue group-hover:text-white transition-colors"
@@ -289,6 +289,11 @@
                                             </svg>
                                             Realizar Examen
                                         </a>
+                                    @else
+                                        <div class="bg-yellow-50 rounded-xl p-4 border border-yellow-200 text-center mb-3">
+                                            <p class="text-sm font-bold text-yellow-700">La evaluación requiere asistencia registrada.</p>
+                                            <p class="mt-1 text-xs text-yellow-700">Ingresa a la sesión o solicita al administrador que registre tu asistencia como presente.</p>
+                                        </div>
                                     @endif
                                 </div>
                             @elseif ($session->require_exam && !$session->exam_enabled)
