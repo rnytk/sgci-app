@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\ResetPasswordNotification;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
@@ -72,6 +73,16 @@ class User extends Authenticatable implements FilamentUser
     public function createdCollaboratorGroups(): HasMany
     {
         return $this->hasMany(CollaboratorGroup::class, 'created_by');
+    }
+
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(Enrollment::class);
+    }
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new ResetPasswordNotification($token));
     }
 
     /**

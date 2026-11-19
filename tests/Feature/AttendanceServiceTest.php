@@ -6,6 +6,7 @@ use App\Models\Training;
 use App\Models\TrainingSession;
 use App\Models\User;
 use App\Services\AttendanceService;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Livewire\Livewire;
 
@@ -118,4 +119,38 @@ test('joining through the meeting link records presence and does not overwrite a
         ->and($attendance->attendance_justification)->toBe('Ausencia confirmada por administración.')
         ->and($attendance->attended_at)->toBeNull()
         ->and($attendance->attendance_recorded_by)->toBe($administrator->id);
+});
+
+test('a withdrawn attendance records its description and supporting documents', function () {
+    Storage::fake('public');
+    Storage::disk('public')->put('attendance-justifications/incapacidad.pdf', 'documento de prueba');
+    ['administrator' => $administrator, 'enrollment' => $enrollment] = attendanceContext();
+    $service = app(AttendanceService::class);
+
+    $attendance = $service->recordManually(
+        $enrollment,
+        Enrollment::ATTENDANCE_WITHDRAWN,
+        'El colaborador se retiró por una emergencia médica.',
+        $administrator,
+        ['attendance-justifications/incapacidad.pdf'],
+    );
+
+    expect($attendance->attendance_status)->toBe(Enrollment::ATTENDANCE_WITHDRAWN)
+        ->and($attendance->attendance_justification)->toBe('El colaborador se retiró por una emergencia médica.')
+        ->and($attendance->attendance_justification_documents)->toBe(['attendance-justifications/incapacidad.pdf'])
+        ->and($attendance->attended_at)->not->toBeNull();
+
+    $attendance = $service->recordFromMeetingLink($attendance);
+    expect($attendance->attendance_status)->toBe(Enrollment::ATTENDANCE_WITHDRAWN);
+
+    $attendance = $service->recordManually(
+        $attendance,
+        Enrollment::ATTENDANCE_PRESENT,
+        null,
+        $administrator,
+    );
+
+    expect($attendance->attendance_justification)->toBeNull()
+        ->and($attendance->attendance_justification_documents)->toBeNull();
+    Storage::disk('public')->assertMissing('attendance-justifications/incapacidad.pdf');
 });

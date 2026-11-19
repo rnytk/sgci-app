@@ -13,6 +13,22 @@ class CertificateService
 {
     public function download(Enrollment $enrollment): Response
     {
+        $pdf = $this->render($enrollment);
+
+        return response($pdf, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => sprintf('attachment; filename="%s"', $this->filename($enrollment)),
+        ]);
+    }
+
+    /**
+     * Renders a certificate using the template configured for its session.
+     *
+     * This method deliberately contains the eligibility validation so individual
+     * and bulk downloads can never produce a diploma for an unfinished result.
+     */
+    public function render(Enrollment $enrollment): string
+    {
         $enrollment->loadMissing([
             'user',
             'trainingSession.training',
@@ -49,12 +65,6 @@ class CertificateService
             base64_encode($backgroundContents),
         );
 
-        $filename = sprintf(
-            'diploma-%s-%d.pdf',
-            Str::slug($session->training->title),
-            $enrollment->id,
-        );
-
         return Pdf::loadView('pdf.training-certificate', [
             'studentName' => $enrollment->user->name,
             'trainingTitle' => $session->training->title,
@@ -64,6 +74,17 @@ class CertificateService
             'pageHeight' => $pageHeight,
         ])
             ->setPaper([0, 0, $pageWidth, $pageHeight])
-            ->download($filename);
+            ->output();
+    }
+
+    public function filename(Enrollment $enrollment): string
+    {
+        $enrollment->loadMissing('trainingSession.training');
+
+        return sprintf(
+            'diploma-%s-%d.pdf',
+            Str::slug($enrollment->trainingSession->training->title),
+            $enrollment->id,
+        );
     }
 }

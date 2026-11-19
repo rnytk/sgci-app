@@ -1,15 +1,15 @@
 <?php
 
+use App\Filament\Resources\ExamAttempts\ExamAttemptResource;
+use App\Filament\Resources\Exams\ExamResource;
+use App\Filament\Resources\Trainings\TrainingResource;
+use App\Filament\Resources\TrainingSessions\TrainingSessionResource;
 use App\Models\Enrollment;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Models\Training;
 use App\Models\TrainingSession;
 use App\Models\User;
-use App\Filament\Resources\ExamAttempts\ExamAttemptResource;
-use App\Filament\Resources\Exams\ExamResource;
-use App\Filament\Resources\Trainings\TrainingResource;
-use App\Filament\Resources\TrainingSessions\TrainingSessionResource;
 use Database\Seeders\SgciRolesSeeder;
 
 beforeEach(function () {
@@ -114,8 +114,14 @@ test('filament resource queries apply record visibility before listing or search
 });
 
 test('training session enrollment count is available for the scheduling table', function () {
-    ['session' => $session] = ownershipScopeContext();
+    ['owner' => $owner, 'session' => $session] = ownershipScopeContext();
 
-    expect(TrainingSession::query()->withCount('enrollments')->findOrFail($session->id)->enrollments_count)
-        ->toBe(1);
+    $session = TrainingSession::query()
+        ->with(['trainer'])
+        ->withCount('enrollments')
+        ->findOrFail($session->id);
+
+    expect($session->enrollments_count)
+        ->toBe(1)
+        ->and($session->trainer->is($owner))->toBeTrue();
 });

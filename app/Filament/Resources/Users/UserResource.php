@@ -20,7 +20,8 @@ class UserResource extends Resource
     protected static ?string $model = User::class;
 
     protected static ?string $modelLabel = 'Usuario';
-      protected static string | UnitEnum| null $navigationGroup = 'Configuracion';
+
+    protected static string|UnitEnum|null $navigationGroup = 'Configuración';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
 
@@ -40,10 +41,12 @@ class UserResource extends Resource
             //
         ];
     }
+
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');
     }
+
     public static function getPages(): array
     {
         return [

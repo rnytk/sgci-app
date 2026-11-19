@@ -2,15 +2,14 @@
 
 namespace App\Mail;
 
+use App\Models\Enrollment;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Mail\Mailables\Address;
-use App\Models\Enrollment;
 
 class TrainingAssignedMail extends Mailable
 {
@@ -19,9 +18,11 @@ class TrainingAssignedMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(public Enrollment $enrollment)
-    {
-        
+    public function __construct(
+        public Enrollment $enrollment,
+        public string $trainingUrl = '',
+    ) {
+        $this->trainingUrl = route('user.training.detail', ['enrollment' => $enrollment]);
     }
 
     /**

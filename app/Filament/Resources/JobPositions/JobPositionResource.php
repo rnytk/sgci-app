@@ -19,10 +19,9 @@ class JobPositionResource extends Resource
 {
     protected static ?string $model = JobPosition::class;
 
-     protected static ?string $modelLabel = 'Cargo';
+    protected static ?string $modelLabel = 'Cargo';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Configuracion';
-    
+    protected static string|UnitEnum|null $navigationGroup = 'Configuración';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBriefcase;
 

@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Training extends Model
 {
@@ -13,14 +14,20 @@ class Training extends Model
         'slug',
         'user_id',
     ];
-    public function user() 
-    { 
-        return $this->belongsTo(User::class, 'user_id'); 
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function mediaResources()
     {
         return $this->hasMany(MediaResource::class);
+    }
+
+    public function trainingSessions(): HasMany
+    {
+        return $this->hasMany(TrainingSession::class);
     }
 
     public function exams()
@@ -41,5 +48,4 @@ class Training extends Model
     {
         return $this->user_id === $user->id;
     }
-    
 }

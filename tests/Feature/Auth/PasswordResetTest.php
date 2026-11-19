@@ -3,7 +3,7 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
+use App\Notifications\ResetPasswordNotification;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Volt\Volt;
 
@@ -12,6 +12,7 @@ test('reset password link screen can be rendered', function () {
 
     $response
         ->assertSeeVolt('pages.auth.forgot-password')
+        ->assertSee('¿Olvidaste tu contraseña?')
         ->assertStatus(200);
 });
 
@@ -24,7 +25,7 @@ test('reset password link can be requested', function () {
         ->set('email', $user->email)
         ->call('sendPasswordResetLink');
 
-    Notification::assertSentTo($user, ResetPassword::class);
+    Notification::assertSentTo($user, ResetPasswordNotification::class);
 });
 
 test('reset password screen can be rendered', function () {
@@ -36,7 +37,7 @@ test('reset password screen can be rendered', function () {
         ->set('email', $user->email)
         ->call('sendPasswordResetLink');
 
-    Notification::assertSentTo($user, ResetPassword::class, function ($notification) {
+    Notification::assertSentTo($user, ResetPasswordNotification::class, function ($notification) {
         $response = $this->get('/reset-password/'.$notification->token);
 
         $response
@@ -56,7 +57,7 @@ test('password can be reset with valid token', function () {
         ->set('email', $user->email)
         ->call('sendPasswordResetLink');
 
-    Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
+    Notification::assertSentTo($user, ResetPasswordNotification::class, function ($notification) use ($user) {
         $component = Volt::test('pages.auth.reset-password', ['token' => $notification->token])
             ->set('email', $user->email)
             ->set('password', 'password')
@@ -69,5 +70,26 @@ test('password can be reset with valid token', function () {
             ->assertHasNoErrors();
 
         return true;
+    });
+});
+
+test('password reset notification renders the SGCI email and protected link', function () {
+    Notification::fake();
+
+    $user = User::factory()->create();
+
+    Volt::test('pages.auth.forgot-password')
+        ->set('email', $user->email)
+        ->call('sendPasswordResetLink');
+
+    Notification::assertSentTo($user, ResetPasswordNotification::class, function (ResetPasswordNotification $notification) use ($user): bool {
+        $mail = $notification->toMail($user);
+        $html = $mail->render();
+
+        return $mail->subject === 'Restablece tu contraseña de SGCI'
+            && $mail->view === 'emails.password-reset'
+            && str($mail->viewData['resetUrl'])->contains('/reset-password/')
+            && str($html)->contains('Cambiar mi contraseña')
+            && str($html)->contains('solo puede utilizarse una vez');
     });
 });

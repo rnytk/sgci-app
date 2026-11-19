@@ -14,6 +14,16 @@
                         Bienvenido a SGCI, tu Sistema de Gestión de Capacitación Interna. Aquí puedes gestionar tus módulos, continuar tu progreso y alcanzar tus metas.
                     </p>
                 </div>
+
+                <a href="{{ route('profile') }}" wire:navigate class="relative z-10 mt-6 inline-flex items-center gap-3 rounded-2xl border border-white/30 bg-white/15 px-5 py-4 text-white shadow-sm backdrop-blur-sm transition hover:bg-white/25 focus:outline-none focus:ring-2 focus:ring-white/80 md:mt-0">
+                    <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A7 7 0 0112 15a7 7 0 016.879 2.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    </span>
+                    <span class="text-left">
+                        <span class="block text-sm font-extrabold">Mi perfil</span>
+                        <span class="block text-xs text-white/80">Gestionar contraseña</span>
+                    </span>
+                </a>
                 
                 <!-- Decoración visual (círculos difuminados en el fondo del banner) -->
                 <div class="absolute -top-24 -right-24 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl pointer-events-none"></div>

@@ -10,10 +10,15 @@ Route::middleware('guest')->group(function () {
 
     Volt::route('forgot-password', 'pages.auth.forgot-password')
         ->name('password.request');
-
-    Volt::route('reset-password/{token}', 'pages.auth.reset-password')
-        ->name('password.reset');
 });
+
+/*
+ * El enlace de bienvenida puede abrirse desde un navegador donde existe otra
+ * sesión activa (por ejemplo, la del administrador que creó al usuario). El
+ * token de Laravel sigue siendo la autorización para esta ruta.
+ */
+Volt::route('reset-password/{token}', 'pages.auth.reset-password')
+    ->name('password.reset');
 
 Route::middleware('auth')->group(function () {
     Volt::route('verify-email', 'pages.auth.verify-email')

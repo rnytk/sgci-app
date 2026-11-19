@@ -76,6 +76,7 @@ class TrainingSessionForm
                     FileUpload::make('diploma_bg')
                         ->label('Plantilla del diploma')
                         ->disk('public')
+                        ->visibility('public')
                         ->directory('training-sessions/diplomas')
                         ->required(fn ($get) => $get('issue_certificate') === true)
                         ->visible(fn ($get) => $get('issue_certificate') === true)

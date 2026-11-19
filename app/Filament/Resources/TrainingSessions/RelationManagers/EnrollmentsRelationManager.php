@@ -8,6 +8,7 @@ use App\Models\Enrollment;
 use App\Models\JobPosition;
 use App\Models\User;
 use App\Services\AttendanceService;
+use App\Services\CertificateArchiveService;
 use App\Services\EnrollmentAssignmentResult;
 use App\Services\EnrollmentAssignmentService;
 use Filament\Actions\Action;
@@ -17,6 +18,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\DissociateAction;
 use Filament\Actions\DissociateBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
@@ -24,7 +26,10 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class EnrollmentsRelationManager extends RelationManager
@@ -81,22 +86,85 @@ class EnrollmentsRelationManager extends RelationManager
                     ->formatStateUsing(fn (string $state): string => match ($state) {
                         Enrollment::ATTENDANCE_PRESENT => 'Presente',
                         Enrollment::ATTENDANCE_ABSENT => 'Ausente',
+                        Enrollment::ATTENDANCE_WITHDRAWN => 'Se retiró',
                         default => 'Pendiente',
                     })
                     ->color(fn (string $state): string => match ($state) {
                         Enrollment::ATTENDANCE_PRESENT => 'success',
                         Enrollment::ATTENDANCE_ABSENT => 'danger',
+                        Enrollment::ATTENDANCE_WITHDRAWN => 'warning',
                         default => 'gray',
                     }),
                 TextColumn::make('attendance_justification')
-                    ->label('Justificación')
+                    ->label('Descripción de ausencia')
                     ->limit(50),
+                TextColumn::make('attendance_justification_documents')
+                    ->label('Documentos')
+                    ->state(fn (Enrollment $record): string => count($record->attendance_justification_documents ?? []).' archivo(s)'),
             ])
 
             ->filters([
-                //
+                SelectFilter::make('status')
+                    ->label('Progreso')
+                    ->options([
+                        'asignado' => 'Asignado',
+                        'en progreso' => 'En progreso',
+                        'pendiente_calificacion' => 'Pendiente de calificación',
+                        'completado' => 'Completado',
+                        'aprobado' => 'Aprobado',
+                        'reprobado' => 'Reprobado',
+                    ]),
+                SelectFilter::make('attendance_status')
+                    ->label('Asistencia')
+                    ->options([
+                        Enrollment::ATTENDANCE_PENDING => 'Pendiente',
+                        Enrollment::ATTENDANCE_PRESENT => 'Presente',
+                        Enrollment::ATTENDANCE_ABSENT => 'Ausente',
+                        Enrollment::ATTENDANCE_WITHDRAWN => 'Se retiró',
+                    ]),
+                Filter::make('agency')
+                    ->label('Agencia')
+                    ->schema([
+                        Select::make('agency_id')
+                            ->label('Agencia')
+                            ->options($this->enrolledAgencyOptions())
+                            ->searchable(),
+                    ])
+                    ->query(fn (Builder $query, array $data): Builder => $query->when(
+                        $data['agency_id'] ?? null,
+                        fn (Builder $query, int $agencyId): Builder => $query->whereHas(
+                            'user',
+                            fn (Builder $userQuery) => $userQuery->where('agency_id', $agencyId),
+                        ),
+                    )),
+                Filter::make('job_position')
+                    ->label('Puesto')
+                    ->schema([
+                        Select::make('job_position_id')
+                            ->label('Puesto')
+                            ->options($this->enrolledJobPositionOptions())
+                            ->searchable(),
+                    ])
+                    ->query(fn (Builder $query, array $data): Builder => $query->when(
+                        $data['job_position_id'] ?? null,
+                        fn (Builder $query, int $jobPositionId): Builder => $query->whereHas(
+                            'user',
+                            fn (Builder $userQuery) => $userQuery->where('job_position_id', $jobPositionId),
+                        ),
+                    )),
             ])
             ->headerActions([
+                Action::make('download_certificates')
+                    ->label('Descargar diplomas aprobados')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('success')
+                    ->url(fn (): string => route('training-sessions.certificates.download', $this->getOwnerRecord()))
+                    ->openUrlInNewTab()
+                    ->visible(fn (): bool => $this->getOwnerRecord()->issue_certificate && filled($this->getOwnerRecord()->diploma_bg))
+                    ->disabled(fn (): bool => app(CertificateArchiveService::class)
+                        ->eligibleEnrollments($this->getOwnerRecord())
+                        ->isEmpty())
+                    ->tooltip('Solo incluye colaboradores con examen aprobado y resultado final.'),
                 Action::make('assign_one')
                     ->label('Asignar uno')
                     ->icon('heroicon-o-user-plus')
@@ -168,6 +236,7 @@ class EnrollmentsRelationManager extends RelationManager
                     ->fillForm(fn (Enrollment $record): array => [
                         'attendance_status' => $record->attendance_status,
                         'attendance_justification' => $record->attendance_justification,
+                        'attendance_justification_documents' => $record->attendance_justification_documents,
                     ])
                     ->schema([
                         Select::make('attendance_status')
@@ -175,14 +244,34 @@ class EnrollmentsRelationManager extends RelationManager
                             ->options([
                                 Enrollment::ATTENDANCE_PRESENT => 'Presente',
                                 Enrollment::ATTENDANCE_ABSENT => 'Ausente',
+                                Enrollment::ATTENDANCE_WITHDRAWN => 'Se retiró',
                             ])
                             ->required()
                             ->live(),
                         Textarea::make('attendance_justification')
-                            ->label('Justificación')
-                            ->required(fn (Get $get): bool => $get('attendance_status') === Enrollment::ATTENDANCE_ABSENT)
-                            ->visible(fn (Get $get): bool => $get('attendance_status') === Enrollment::ATTENDANCE_ABSENT)
+                            ->label('Descripción de la ausencia')
+                            ->required(fn (Get $get): bool => Enrollment::attendanceRequiresDescription($get('attendance_status')))
+                            ->visible(fn (Get $get): bool => Enrollment::attendanceRequiresDescription($get('attendance_status')))
                             ->maxLength(2000)
+                            ->columnSpanFull(),
+                        FileUpload::make('attendance_justification_documents')
+                            ->label('Documentos de respaldo')
+                            ->disk('public')
+                            ->directory('attendance-justifications')
+                            ->multiple()
+                            ->maxFiles(5)
+                            ->maxSize(10240)
+                            ->acceptedFileTypes([
+                                'application/pdf',
+                                'image/jpeg',
+                                'image/png',
+                                'application/msword',
+                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                            ])
+                            ->downloadable()
+                            ->openable()
+                            ->helperText('Opcional. Máximo 5 archivos de 10 MB: PDF, imagen o Word.')
+                            ->visible(fn (Get $get): bool => Enrollment::attendanceRequiresDescription($get('attendance_status')))
                             ->columnSpanFull(),
                     ])
                     ->action(function (Enrollment $record, array $data): void {
@@ -194,6 +283,7 @@ class EnrollmentsRelationManager extends RelationManager
                             $data['attendance_status'],
                             $data['attendance_justification'] ?? null,
                             $user,
+                            $data['attendance_justification_documents'] ?? [],
                         );
                     }),
                 EditAction::make(),
@@ -235,6 +325,36 @@ class EnrollmentsRelationManager extends RelationManager
             ->orderBy('name')
             ->get()
             ->mapWithKeys(fn (User $user): array => [$user->id => "{$user->name} ({$user->email})"])
+            ->all();
+    }
+
+    /** @return array<int, string> */
+    private function enrolledAgencyOptions(): array
+    {
+        return $this->getOwnerRecord()
+            ->enrollments()
+            ->with('user.agency')
+            ->get()
+            ->map(fn (Enrollment $enrollment) => $enrollment->user?->agency)
+            ->filter()
+            ->unique('id')
+            ->sortBy('name')
+            ->pluck('name', 'id')
+            ->all();
+    }
+
+    /** @return array<int, string> */
+    private function enrolledJobPositionOptions(): array
+    {
+        return $this->getOwnerRecord()
+            ->enrollments()
+            ->with('user.jobPosition')
+            ->get()
+            ->map(fn (Enrollment $enrollment) => $enrollment->user?->jobPosition)
+            ->filter()
+            ->unique('id')
+            ->sortBy('name')
+            ->pluck('name', 'id')
             ->all();
     }
 

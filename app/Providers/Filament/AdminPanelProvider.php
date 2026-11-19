@@ -2,17 +2,15 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Dashboard;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -25,14 +23,14 @@ class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
-        
-          ->databaseNotifications()
-          ->databaseNotificationsPolling('30s')
-          ->brandName('SISTEMA SGCI KATO-KI')
-          ->brandLogo(asset('img/logo_sgci.png'))
-          ->brandLogoHeight('5rem')
-           ->sidebarFullyCollapsibleOnDesktop()
-          
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s')
+            ->brandName('SISTEMA SGCI KATO-KI')
+            ->brandLogo(asset('img/logo_letras_color.png'))
+            ->darkModeBrandLogo(asset('img/logo_letras.png'))
+            ->brandLogoHeight('5rem')
+            ->sidebarFullyCollapsibleOnDesktop()
+
             ->default()
             ->id('admin')
             ->path('admin')
@@ -43,12 +41,14 @@ class AdminPanelProvider extends PanelProvider
 
             ->navigationGroups([
                 'Capacitaciones',
-                'Configuracion',
+                'Control de evaluaciones',
+                'Gestión de colaboradores',
+                'Configuración',
             ])
 
             ->plugins([
                 FilamentShieldPlugin::make()
-                    ->navigationGroup('Configuracion')
+                    ->navigationGroup('Configuración')
                     ->navigationLabel('Roles'),
             ])
 
@@ -58,10 +58,6 @@ class AdminPanelProvider extends PanelProvider
                 Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
-            ->widgets([
-                AccountWidget::class,
-                FilamentInfoWidget::class,
-            ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

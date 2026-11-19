@@ -64,8 +64,14 @@ new class extends Component
                             <p class="text-xs text-kato-gray">Conectado como</p>
                             <p class="text-sm font-bold text-kato-blue truncate">{{ auth()->user()->email }}</p>
                         </div>
-                        
-                  
+
+                        <a href="{{ route('profile') }}" wire:navigate>
+                            <x-dropdown-link class="flex items-center gap-2 font-semibold">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A7 7 0 0112 15a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                Mi perfil y contraseña
+                            </x-dropdown-link>
+                        </a>
+
                         <!-- Botón de Cerrar Sesión -->
                         <button wire:click="logout" class="w-full text-start">
                             <x-dropdown-link class="text-red-500 hover:text-red-700 hfont-bold transition-colors">
@@ -105,8 +111,8 @@ new class extends Component
             </div>
 
             <div class="space-y-1">
-                <a href="{{ route('profile') }}" wire:navigate class="block w-full ps-4 pe-4 py-2 border-l-4 border-transparent text-start text-base font-medium text-kato-gray hover:text-kato-blue hover:bg-white focus:outline-none transition duration-150 ease-in-out">
-                    {{ __('Profile') }}
+                <a href="{{ route('profile') }}" wire:navigate class="block w-full ps-4 pe-4 py-2 border-l-4 {{ request()->routeIs('profile') ? 'border-kato-yellow text-kato-blue bg-white font-bold' : 'border-transparent text-kato-gray hover:text-kato-blue hover:bg-white' }} text-start text-base font-medium focus:outline-none transition duration-150 ease-in-out">
+                    Mi perfil y contraseña
                 </a>
 
                 <!-- Cerrar Sesión -->

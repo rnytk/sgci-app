@@ -40,39 +40,44 @@ new class extends Component
 
 <section>
     <header>
-        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-            {{ __('Update Password') }}
+        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-kato-green/10 text-kato-green">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 3h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm9-10V7a3 3 0 00-6 0v3h6z" /></svg>
+        </div>
+        <h2 class="mt-4 text-xl font-extrabold text-kato-blue">
+            Cambiar contraseña
         </h2>
 
-        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            {{ __('Ensure your account is using a long, random password to stay secure.') }}
+        <p class="mt-2 text-sm leading-6 text-kato-gray">
+            Si recibiste una contraseña temporal, crea una nueva para asegurar el acceso a tu cuenta.
         </p>
     </header>
 
-    <form wire:submit="updatePassword" class="mt-6 space-y-6">
+    <form wire:submit="updatePassword" class="mt-7 space-y-5">
         <div>
-            <x-input-label for="update_password_current_password" :value="__('Current Password')" />
-            <x-text-input wire:model="current_password" id="update_password_current_password" name="current_password" type="password" class="mt-1 block w-full" autocomplete="current-password" />
+            <label for="update_password_current_password" class="text-sm font-bold text-kato-blue">Contraseña actual o temporal</label>
+            <x-text-input wire:model="current_password" id="update_password_current_password" name="current_password" type="password" class="mt-2 block w-full rounded-xl border-gray-200 bg-white px-4 py-3 text-kato-blue shadow-sm focus:border-kato-green focus:ring-kato-green dark:!border-gray-200 dark:!bg-white dark:!text-kato-blue" autocomplete="current-password" />
             <x-input-error :messages="$errors->get('current_password')" class="mt-2" />
         </div>
 
         <div>
-            <x-input-label for="update_password_password" :value="__('New Password')" />
-            <x-text-input wire:model="password" id="update_password_password" name="password" type="password" class="mt-1 block w-full" autocomplete="new-password" />
+            <label for="update_password_password" class="text-sm font-bold text-kato-blue">Nueva contraseña</label>
+            <x-text-input wire:model="password" id="update_password_password" name="password" type="password" class="mt-2 block w-full rounded-xl border-gray-200 bg-white px-4 py-3 text-kato-blue shadow-sm focus:border-kato-green focus:ring-kato-green dark:!border-gray-200 dark:!bg-white dark:!text-kato-blue" autocomplete="new-password" />
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
         <div>
-            <x-input-label for="update_password_password_confirmation" :value="__('Confirm Password')" />
-            <x-text-input wire:model="password_confirmation" id="update_password_password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full" autocomplete="new-password" />
+            <label for="update_password_password_confirmation" class="text-sm font-bold text-kato-blue">Confirmar nueva contraseña</label>
+            <x-text-input wire:model="password_confirmation" id="update_password_password_confirmation" name="password_confirmation" type="password" class="mt-2 block w-full rounded-xl border-gray-200 bg-white px-4 py-3 text-kato-blue shadow-sm focus:border-kato-green focus:ring-kato-green dark:!border-gray-200 dark:!bg-white dark:!text-kato-blue" autocomplete="new-password" />
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
 
         <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
+            <button type="submit" class="inline-flex items-center rounded-xl bg-kato-green px-5 py-3 text-sm font-extrabold text-white shadow-sm transition hover:bg-kato-darkgreen focus:outline-none focus:ring-2 focus:ring-kato-green focus:ring-offset-2">
+                Actualizar contraseña
+            </button>
 
-            <x-action-message class="me-3" on="password-updated">
-                {{ __('Saved.') }}
+            <x-action-message class="text-sm font-bold text-kato-green" on="password-updated">
+                Contraseña actualizada.
             </x-action-message>
         </div>
     </form>

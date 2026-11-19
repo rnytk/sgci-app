@@ -21,9 +21,7 @@ class AgencyResource extends Resource
 
     protected static ?string $modelLabel = 'Agencia';
 
-
-    protected static string | UnitEnum | null $navigationGroup = 'Configuracion';
-
+    protected static string|UnitEnum|null $navigationGroup = 'Configuración';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingOffice2;
 

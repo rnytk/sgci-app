@@ -14,12 +14,15 @@ class Enrollment extends Model
 
     public const ATTENDANCE_ABSENT = 'ausente';
 
+    public const ATTENDANCE_WITHDRAWN = 'se_retiro';
+
     protected $fillable = [
         'training_session_id',
         'user_id',
         'attended_at',
         'attendance_status',
         'attendance_justification',
+        'attendance_justification_documents',
         'attendance_recorded_at',
         'attendance_recorded_by',
         'status',
@@ -30,6 +33,7 @@ class Enrollment extends Model
         return [
             'attended_at' => 'datetime',
             'attendance_recorded_at' => 'datetime',
+            'attendance_justification_documents' => 'array',
         ];
     }
 
@@ -38,7 +42,16 @@ class Enrollment extends Model
      */
     public static function manualAttendanceStatuses(): array
     {
-        return [self::ATTENDANCE_PRESENT, self::ATTENDANCE_ABSENT];
+        return [
+            self::ATTENDANCE_PRESENT,
+            self::ATTENDANCE_ABSENT,
+            self::ATTENDANCE_WITHDRAWN,
+        ];
+    }
+
+    public static function attendanceRequiresDescription(?string $status): bool
+    {
+        return in_array($status, [self::ATTENDANCE_ABSENT, self::ATTENDANCE_WITHDRAWN], true);
     }
 
     public function hasPresentAttendance(): bool

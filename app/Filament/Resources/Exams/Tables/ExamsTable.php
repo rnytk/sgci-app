@@ -6,6 +6,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class ExamsTable
@@ -30,7 +31,10 @@ class ExamsTable
                     ->alignCenter(),
             ])
             ->filters([
-                //
+                SelectFilter::make('training')
+                    ->label('Capacitación')
+                    ->relationship('training', 'title', fn ($query) => $query->visibleTo(auth()->user()))
+                    ->searchable(),
             ])
             ->recordActions([
                 EditAction::make(),

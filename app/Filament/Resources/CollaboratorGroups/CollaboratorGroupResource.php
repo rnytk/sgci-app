@@ -26,7 +26,7 @@ class CollaboratorGroupResource extends Resource
 
     protected static ?string $navigationLabel = 'Grupos de colaboradores';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Capacitaciones';
+    protected static string|UnitEnum|null $navigationGroup = 'Gestión de colaboradores';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
 

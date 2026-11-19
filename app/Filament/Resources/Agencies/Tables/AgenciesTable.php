@@ -6,6 +6,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
 class AgenciesTable
@@ -22,7 +23,7 @@ class AgenciesTable
                     ->label('Ubicación'),
                 TextColumn::make('is_active')
                     ->searchable()
-                      ->badge()
+                    ->badge()
                     ->label('Estado')
                     ->color('success'),
                 TextColumn::make('created_at')
@@ -35,7 +36,11 @@ class AgenciesTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                TernaryFilter::make('is_active')
+                    ->label('Estado')
+                    ->placeholder('Todas')
+                    ->trueLabel('Activas')
+                    ->falseLabel('Inactivas'),
             ])
             ->recordActions([
                 EditAction::make(),

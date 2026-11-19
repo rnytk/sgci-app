@@ -41,32 +41,24 @@
                                     <td style="padding: 20px;">
                                         <p style="margin: 0 0 12px 0; font-size: 15px; color: #334155;"><strong>📘 Tema:</strong> {{ $enrollment->trainingSession->training->title }}</p>
                                         <p style="margin: 0 0 12px 0; font-size: 15px; color: #334155;"><strong>📅 Fecha y Hora:</strong> {{ \Carbon\Carbon::parse($enrollment->trainingSession->scheduled_at)->format('d/m/Y h:i A') }}</p>
-                                        <p style="margin: 0; font-size: 15px; color: #334155;"><strong>🔗 Link de acceso:</strong> <span style="background-color: #e2e8f0; padding: 4px 8px; border-radius: 4px; font-family: 'Courier New', Courier, monospace; letter-spacing: 0.5px;">{{ $enrollment->trainingSession->meeting_link ?? 'No especificado' }}</span></p>
+                                        <p style="margin: 0; font-size: 15px; color: #334155;"><strong>📍 Acceso:</strong> Ingresa desde SGCI con tus credenciales institucionales.</p>
                                     </td>
                                 </tr>
                             </table>
 
-                            <p style="margin: 0 0 30px 0; font-size: 16px; line-height: 1.6; color: #475569;">Por favor, asegúrate de conectarte o asistir puntualmente. Puedes acceder directamente haciendo clic en el siguiente botón:</p>
+                            <p style="margin: 0 0 30px 0; font-size: 16px; line-height: 1.6; color: #475569;">Consulta los detalles de tu capacitación desde la plataforma. Allí podrás acceder a la sesión cuando esté disponible.</p>
                             
                             <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                 <tr>
                                     <td align="center">
-                                        @if($enrollment->trainingSession->meeting_link)
-                                            <a href="{{ $enrollment->trainingSession->meeting_link }}" class="button" style="display: inline-block; background-color: #4C8C2B; color: #ffffff; font-size: 16px; font-weight: 600; text-decoration: none; padding: 14px 30px; border-radius: 6px;">Enlace de la Reunión</a>
-                                        @else
-                                            <a href="{{ url('/admin') }}" class="button" style="display: inline-block; background-color: #4C8C2B; color: #ffffff; font-size: 16px; font-weight: 600; text-decoration: none; padding: 14px 30px; border-radius: 6px;">Ingresar al Portal SGCI</a>
-                                        @endif
+                                        <a href="{{ $trainingUrl }}" class="button" style="display: inline-block; background-color: #4C8C2B; color: #ffffff; font-size: 16px; font-weight: 600; text-decoration: none; padding: 14px 30px; border-radius: 6px;">Ver mi capacitación</a>
                                     </td>
                                 </tr>
                             </table>
 
                             <p style="margin: 35px 0 0 0; font-size: 14px; line-height: 1.5; color: #64748b;">Si tienes problemas con el botón, copia y pega el siguiente enlace en tu navegador:</p>
                             <p style="margin: 5px 0 0 0; font-size: 13px; color: #2563eb; word-break: break-all;">
-                                @if($enrollment->trainingSession->meeting_link)
-                                    <a href="{{ $enrollment->trainingSession->meeting_link }}" style="color: #2563eb; text-decoration: underline;">{{ $enrollment->trainingSession->meeting_link }}</a>
-                                @else
-                                    <a href="{{ url('/admin') }}" style="color: #2563eb; text-decoration: underline;">{{ url('/admin') }}</a>
-                                @endif
+                                <a href="{{ $trainingUrl }}" style="color: #2563eb; text-decoration: underline;">{{ $trainingUrl }}</a>
                             </p>
                         </td>
                     </tr>

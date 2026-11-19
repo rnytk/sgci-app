@@ -1,11 +1,12 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TrainingCertificateController;
+use App\Http\Controllers\TrainingSessionCertificateArchiveController;
 use App\Livewire\UserTrainingDetail;
 use App\Livewire\UserTrainingExam;
-use App\Http\Controllers\TrainingCertificateController;
+use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'welcome');
+Route::redirect('/', '/login');
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
@@ -20,11 +21,15 @@ Route::get('capacitaciones/{enrollment}', UserTrainingDetail::class)
     ->name('user.training.detail');
 
 Route::get('capacitaciones/{enrollment}/examen', UserTrainingExam::class)
-     ->middleware(['auth'])
+    ->middleware(['auth'])
     ->name('user.training.exam');
 
 Route::get('capacitaciones/{enrollment}/diploma', TrainingCertificateController::class)
     ->middleware(['auth'])
     ->name('user.training.certificate');
+
+Route::get('programaciones/{trainingSession}/diplomas', TrainingSessionCertificateArchiveController::class)
+    ->middleware(['auth'])
+    ->name('training-sessions.certificates.download');
 
 require __DIR__.'/auth.php';
