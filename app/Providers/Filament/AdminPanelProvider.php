@@ -28,6 +28,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandName('SISTEMA SGCI KATO-KI')
             ->brandLogo(asset('img/logo_letras_color.png'))
             ->darkModeBrandLogo(asset('img/logo_letras.png'))
+            ->favicon(asset('img/logo.png'))
             ->brandLogoHeight('5rem')
             ->sidebarFullyCollapsibleOnDesktop()
 

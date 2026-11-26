@@ -25,11 +25,11 @@ class DatabaseSeeder extends Seeder
 
         */
 
-
         $this->call([
             AgencySeeder::class,
             JobPositionSeeder::class,
             SgciRolesSeeder::class,
+            SuperAdministratorSeeder::class,
         ]);
     }
 }

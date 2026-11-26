@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Exams\Pages;
 
 use App\Filament\Resources\Exams\ExamResource;
 use App\Filament\Traits\RedirectToIndex;
+use App\Models\Exam;
 use App\Models\Training;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
@@ -20,6 +21,15 @@ class EditExam extends EditRecord
         if (! Training::visibleTo(auth()->user())->whereKey($data['training_id'])->exists()) {
             throw ValidationException::withMessages([
                 'training_id' => 'No puedes usar una capacitación que no te pertenece.',
+            ]);
+        }
+
+        if (Exam::query()
+            ->where('training_id', $data['training_id'])
+            ->whereKeyNot($this->getRecord()->getKey())
+            ->exists()) {
+            throw ValidationException::withMessages([
+                'training_id' => 'Esta capacitación ya tiene una evaluación configurada.',
             ]);
         }
 

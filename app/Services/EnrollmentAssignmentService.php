@@ -6,6 +6,7 @@ use App\Models\Enrollment;
 use App\Models\TrainingSession;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -39,6 +40,12 @@ class EnrollmentAssignmentService
         }
 
         return DB::transaction(function () use ($session, $userIds): EnrollmentAssignmentResult {
+            User::query()
+                ->whereIn('id', $userIds)
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get(['id']);
+
             $alreadyAssignedIds = Enrollment::query()
                 ->where('training_session_id', $session->id)
                 ->whereIn('user_id', $userIds)
@@ -46,6 +53,8 @@ class EnrollmentAssignmentService
                 ->all();
 
             $newUserIds = array_values(array_diff($userIds, $alreadyAssignedIds));
+
+            $this->ensureUsersCanBeAssigned($session, $newUserIds);
 
             foreach ($newUserIds as $userId) {
                 Enrollment::create([
@@ -60,6 +69,68 @@ class EnrollmentAssignmentService
                 alreadyAssigned: count($alreadyAssignedIds),
             );
         });
+    }
+
+    /**
+     * @param  array<int, int>  $userIds
+     */
+    private function ensureUsersCanBeAssigned(TrainingSession $session, array $userIds): void
+    {
+        if ($userIds === []) {
+            return;
+        }
+
+        $activeOrCompletedEnrollment = fn (Builder $query): Builder => $query
+            ->whereRaw('lower(status) <> ?', ['reprobado']);
+
+        $sameTrainingConflicts = Enrollment::query()
+            ->whereIn('user_id', $userIds)
+            ->where('training_session_id', '!=', $session->id)
+            ->where($activeOrCompletedEnrollment)
+            ->whereHas(
+                'trainingSession',
+                fn (Builder $sessionQuery): Builder => $sessionQuery->where('training_id', $session->training_id),
+            )
+            ->with('user:id,name')
+            ->get();
+
+        if ($sameTrainingConflicts->isNotEmpty()) {
+            throw ValidationException::withMessages([
+                'user_ids' => 'No puedes asignar a '.$this->userNames($sameTrainingConflicts)
+                    .': ya tiene una inscripción activa o completada en esta capacitación. '
+                    .'Solo puede asignarse nuevamente si la inscripción anterior fue reprobada.',
+            ]);
+        }
+
+        $scheduleConflicts = Enrollment::query()
+            ->whereIn('user_id', $userIds)
+            ->where('training_session_id', '!=', $session->id)
+            ->where($activeOrCompletedEnrollment)
+            ->whereHas(
+                'trainingSession',
+                fn (Builder $sessionQuery): Builder => $sessionQuery->where('scheduled_at', $session->scheduled_at),
+            )
+            ->with('user:id,name')
+            ->get();
+
+        if ($scheduleConflicts->isNotEmpty()) {
+            throw ValidationException::withMessages([
+                'user_ids' => 'No puedes asignar a '.$this->userNames($scheduleConflicts)
+                    .': ya tiene otra programación activa o completada en la misma fecha y hora.',
+            ]);
+        }
+    }
+
+    /**
+     * @param  Collection<int, Enrollment>  $enrollments
+     */
+    private function userNames($enrollments): string
+    {
+        return $enrollments
+            ->pluck('user.name')
+            ->filter()
+            ->unique()
+            ->join(', ');
     }
 
     /**

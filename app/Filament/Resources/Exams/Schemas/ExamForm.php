@@ -1,20 +1,18 @@
 <?php
 
-
 namespace App\Filament\Resources\Exams\Schemas;
 
-use App\Models\Training;
+use App\Models\Exam;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
-use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Hidden;
-use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
-use Filament\Forms\Components\Placeholder;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\HtmlString;
 
 class ExamForm
 {
@@ -26,13 +24,17 @@ class ExamForm
                     Select::make('training_id')
                         ->label('Capacitación')
                         ->relationship(
-                            name: 'training', 
+                            name: 'training',
                             titleAttribute: 'title',
                             modifyQueryUsing: fn (Builder $query) => $query->visibleTo(auth()->user())
                         )
                         ->required()
+                        ->unique(Exam::class, 'training_id', ignoreRecord: true)
+                        ->validationMessages([
+                            'unique' => 'Esta capacitación ya tiene una evaluación configurada.',
+                        ])
                         ->searchable(),
-                    
+
                     TextInput::make('passing_score')
                         ->label('Nota de Aprobación')
                         ->numeric()
@@ -48,11 +50,11 @@ class ExamForm
                         ->content(function (Get $get) {
                             $questions = $get('questions') ?? [];
                             $total = collect($questions)->sum('points');
-                            
+
                             $color = $total == 100 ? 'text-success-600' : 'text-danger-600';
                             $icon = $total == 100 ? '✅' : '⚠️';
 
-                            return new \Illuminate\Support\HtmlString(
+                            return new HtmlString(
                                 "<div class='text-xl font-bold {$color}'>
                                     {$icon} Total acumulado: {$total} / 100 puntos
                                 </div>"
@@ -64,7 +66,7 @@ class ExamForm
                         ->relationship('questions')
                         ->schema([
                             TextInput::make('question_text')->label('Pregunta')->required()->columnSpan(3),
-                            
+
                             Select::make('type')
                                 ->label('Tipo')
                                 ->options(['multiple' => 'Opción Múltiple', 'open' => 'Abierta'])
@@ -92,7 +94,7 @@ class ExamForm
                         ->columns(5)
                         ->collapsible()
                         ->itemLabel(fn (array $state): ?string => $state['question_text'] ?? 'Nueva Pregunta')
-                        
+
                         // 3. REGLA DE VALIDACIÓN PARA LOS 100 PUNTOS
                         ->rules([
                             fn () => function (string $attribute, $value, \Closure $fail) {
